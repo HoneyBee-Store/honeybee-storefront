@@ -90,9 +90,16 @@ app.MapControllerRoute(
 // deploy step so two instances can't migrate at the same time.
 await using (var scope = app.Services.CreateAsyncScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var sp = scope.ServiceProvider;
+
+    var db = sp.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await DbSeeder.SeedAsync(db);
+
+    await AdminSeeder.SeedAsync(
+        sp.GetRequiredService<UserManager<IdentityUser>>(),
+        app.Configuration,
+        sp.GetRequiredService<ILoggerFactory>().CreateLogger("AdminSeeder"));
 }
 
 app.Run();

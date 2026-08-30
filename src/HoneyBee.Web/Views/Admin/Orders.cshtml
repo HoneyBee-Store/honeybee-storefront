@@ -1,0 +1,51 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Orders";
+    Layout = "_AdminLayout";
+}
+
+<h1 class="h3 mb-4">Orders</h1>
+
+@if (Model.Count == 0)
+{
+    <div class="admin-card p-4 text-center">
+        <p class="mb-1 fw-semibold">No orders yet</p>
+        <p class="text-body-secondary small mb-0">
+            Customers can't place orders until the cart is built (phase 3).
+            Until then they order by phone, and this page stays empty.
+        </p>
+    </div>
+}
+else
+{
+    <div class="table-responsive admin-card">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Order</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Pickup</th>
+                    <th scope="col">Items</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Placed</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td class="font-monospace">@o.OrderNumber</td>
+                        <td>
+                            <div>@o.CustomerName</div>
+                            <a href="tel:@o.Phone" class="small" dir="ltr">@o.Phone</a>
+                        </td>
+                        <td>@(o.PickupLocation?.NameEn ?? "—")</td>
+                        <td>@o.Items.Sum(i => i.Quantity)</td>
+                        <td><span class="badge bg-secondary">@o.Status</span></td>
+                        <td class="text-nowrap small">@o.CreatedAt.ToLocalTime().ToString("d MMM yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

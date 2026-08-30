@@ -1,0 +1,89 @@
+@model List<Product>
+@{
+    ViewData["Title"] = "Products";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Products</h1>
+        <p class="text-body-secondary small mb-0">
+            @Model.Count(p => p.InStock) in stock · @Model.Count(p => !p.InStock) out of stock
+        </p>
+    </div>
+    <a class="btn btn-honey" asp-action="EditProduct">
+        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add product
+    </a>
+</div>
+
+<div class="table-responsive admin-card">
+    <table class="table align-middle mb-0">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Product</th>
+                <th scope="col">Price</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Visible</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                var img = p.Images.FirstOrDefault();
+                <tr>
+                    <td style="width:64px">
+                        @if (img is not null)
+                        {
+                            <img src="~/@img.Path" alt="" class="admin-thumb"
+                                 style="object-position: center @(img.FocalY)%;" />
+                        }
+                    </td>
+                    <td>
+                        <div class="fw-semibold">@p.NameEn</div>
+                        <div class="text-body-secondary small" dir="rtl">@p.NameAr</div>
+                    </td>
+                    <td class="text-nowrap">
+                        @if (p.Price is null)
+                        {
+                            <span class="text-body-secondary small">On request</span>
+                        }
+                        else
+                        {
+                            @($"{p.Price:0.###} JOD")
+                        }
+                    </td>
+                    <td>
+                        <form asp-action="ToggleStock" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@p.Id" />
+                            <button type="submit"
+                                    class="badge border-0 @(p.InStock ? "status-in" : "status-out")"
+                                    title="Click to toggle">
+                                @(p.InStock ? "In stock" : "Out of stock")
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        @if (p.IsActive)
+                        {
+                            <i class="bi bi-check-lg text-success" aria-label="Visible"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-slash-circle text-body-secondary" aria-label="Hidden"></i>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           asp-action="EditProduct" asp-route-id="@p.Id">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p class="text-body-secondary small mt-3">
+    Clicking a stock badge flips it immediately — no need to open the product.
+</p>
