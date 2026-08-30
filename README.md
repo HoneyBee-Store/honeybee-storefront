@@ -1,7 +1,7 @@
 # HoneyBee Storefront (v2)
 
 The database-backed rebuild of [HoneyBee Shop](https://honeybee-store.github.io/HoneyBee_Shop.github.io/).
-ASP.NET Core MVC on .NET 10, EF Core, PostgreSQL.
+ASP.NET Core MVC on .NET 10, EF Core, SQL Server.
 
 **v1 (the static site) stays live and untouched while this is built.** Nothing
 here affects it.
@@ -22,34 +22,33 @@ sequence.
 
 ## Running it locally
 
-You need the .NET 10 SDK and a PostgreSQL 16+ server.
+You need the .NET 10 SDK and SQL Server. LocalDB (ships with Visual Studio and
+the SQL Server tools) is enough for development and is what this was verified
+against.
 
-**1. Create the database**
-
-```bash
-createdb honeybee
-```
-
-**2. Set the connection string**
+**1. Set the connection string**
 
 It is deliberately empty in `appsettings.json`, which is committed to git.
-Use User Secrets so your password never lands in the repo:
+User Secrets keeps the real value out of the repo:
 
 ```bash
 cd src/HoneyBee.Web
-dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Database=honeybee;Username=postgres;Password=YOUR_PASSWORD"
+dotnet user-secrets set "ConnectionStrings:Default" "Server=(localdb)\MSSQLLocalDB;Database=honeybee;Trusted_Connection=True;MultipleActiveResultSets=true"
 ```
 
-**3. Run**
+Already configured on this machine — you only need this on a new one.
+
+**2. Run**
 
 ```bash
 dotnet run --project src/HoneyBee.Web
 ```
 
-Migrations apply and the catalogue seeds automatically on first start.
+The database is created, migrations apply, and the catalogue seeds on first
+start. User Secrets only load in the Development environment, so set
+`ASPNETCORE_ENVIRONMENT=Development` if you start the DLL directly.
 
-In production, supply the same value as an environment variable instead:
+In production, supply the connection string as an environment variable instead:
 `ConnectionStrings__Default` (double underscore).
 
 ## Layout
@@ -89,6 +88,13 @@ never sign in. Phase 2 adds one hand-written login page.
 
 **Seeding is idempotent.** `DbSeeder` no-ops once rows exist, so it is safe to
 leave wired up in `Program.cs`.
+
+**`UseAppHost` is off.** This machine's application-control policy refuses to
+launch freshly compiled `.exe` files, so the apphost `dotnet run` normally
+produces was blocked with "Access is denied". The build now emits only
+`HoneyBee.Web.dll`, which runs through the signed `dotnet` host. If you move to
+a machine without that restriction you can delete the property; it changes
+nothing else.
 
 ## Before deploying
 
