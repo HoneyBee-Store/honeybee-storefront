@@ -1,0 +1,66 @@
+@using HoneyBee.Web.Models
+@model Product
+@{
+    ViewData["Title"] = Model.Name();
+    var primary = Model.Images.FirstOrDefault(i => i.IsPrimary) ?? Model.Images.FirstOrDefault();
+}
+
+<section class="section-pad">
+    <div class="container">
+        <p class="mb-4">
+            <a asp-action="Index" class="back-link">
+                <i class="bi bi-arrow-@(LocalizedText.IsArabic ? "right" : "left") me-1" aria-hidden="true"></i>@L["Back to products"]
+            </a>
+        </p>
+
+        <div class="row g-5">
+            <div class="col-lg-6">
+                @if (primary is not null)
+                {
+                    <img src="~/@primary.Path" alt="@primary.Alt()" class="product-detail-img"
+                         style="object-position: center @(primary.FocalY)%;" />
+                }
+            </div>
+
+            <div class="col-lg-6">
+                <h1 class="section-title">@Model.Name()</h1>
+
+                <div class="product-meta mb-3">
+                    @if (Model.InStock)
+                    {
+                        <span class="badge status-in">@L["In Stock"]</span>
+                    }
+                    else
+                    {
+                        <span class="badge status-out">@L["Out of Stock"]</span>
+                    }
+                    <span class="price-note">
+                        @if (Model.Price is null)
+                        {
+                            @L["Price on request"]
+                        }
+                        else
+                        {
+                            @($"{Model.Price:0.###} JOD")
+                            @if (!string.IsNullOrWhiteSpace(Model.Unit()))
+                            {
+                                <text> / @Model.Unit()</text>
+                            }
+                        }
+                    </span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Description()))
+                {
+                    <p class="lead-sm">@Model.Description()</p>
+                }
+
+                @* No cart yet — phase 3. Until then the call to action is a phone
+                   call, which is how orders actually get placed today. *@
+                <a class="btn btn-honey btn-lg mt-2" href="tel:+962780364203">
+                    <i class="bi bi-telephone-fill me-2" aria-hidden="true"></i>@L["Ask about this product"]
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

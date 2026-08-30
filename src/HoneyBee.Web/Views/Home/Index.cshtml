@@ -1,8 +1,148 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@using HoneyBee.Web.Models
+@model StorefrontViewModel
+@{
+    ViewData["Title"] = L["Home"].Value;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero-honey">
+    <div class="hero-honey-media">
+        <img src="~/img/products/collection-hero.jpg" alt="" />
+        <div class="hero-honey-overlay" aria-hidden="true"></div>
+    </div>
+    <div class="container hero-honey-content">
+        <p class="eyebrow mb-2"><i class="bi bi-flower1" aria-hidden="true"></i> @L["Raw and Natural"]</p>
+        <h1 class="display-5 fw-bold lh-sm mb-3">@L["Pure Honey, Straight From the Hive"]</h1>
+        <p class="lead mb-4">@L["HeroLead"]</p>
+        <a class="btn btn-honey btn-lg" href="#products">
+            <i class="bi bi-grid me-2" aria-hidden="true"></i>@L["View Products"]
+        </a>
+    </div>
+</section>
+
+<section id="products" class="section-pad">
+    <div class="container">
+        <header class="section-head">
+            <h2 class="section-title">@L["Our Products"]</h2>
+            <p class="section-sub">@L["ProductsIntro"]</p>
+        </header>
+
+        <div class="row g-4">
+            @foreach (var p in Model.Products)
+            {
+                var img = p.Images.FirstOrDefault();
+                <div class="col-sm-6 col-lg-4">
+                    <article class="product-card h-100">
+                        <a class="product-img-wrap" asp-action="Product" asp-route-slug="@p.Slug">
+                            @if (img is not null)
+                            {
+                                @* FocalY comes from the database, measured per photo. These are
+                                   tall phone shots where the jar sits high in frame, so a default
+                                   centre crop would show the floor underneath. *@
+                                <img src="~/@img.Path" alt="@img.Alt()" loading="lazy"
+                                     style="object-position: center @(img.FocalY)%;" />
+                            }
+                        </a>
+                        <div class="product-body">
+                            <h3 class="h5">
+                                <a asp-action="Product" asp-route-slug="@p.Slug">@p.Name()</a>
+                            </h3>
+                            <p class="text-body-secondary">@p.Description()</p>
+                            <div class="product-meta">
+                                @if (p.InStock)
+                                {
+                                    <span class="badge status-in">@L["In Stock"]</span>
+                                }
+                                else
+                                {
+                                    <span class="badge status-out">@L["Out of Stock"]</span>
+                                }
+                                <span class="price-note">
+                                    @if (p.Price is null)
+                                    {
+                                        @L["Price on request"]
+                                    }
+                                    else
+                                    {
+                                        @($"{p.Price:0.###} JOD")
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section id="about" class="section-pad section-alt">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+                <h2 class="section-title">@L["Our Story"]</h2>
+                <p class="lead-sm">@L["StoryBody"]</p>
+                <div class="row g-3">
+                    <div class="col-6 col-xl-4">
+                        <div class="fact-card">
+                            <i class="bi bi-flower3" aria-hidden="true"></i>
+                            <span class="fact-value">@L["100% Natural"]</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-4">
+                        <div class="fact-card">
+                            <i class="bi bi-droplet" aria-hidden="true"></i>
+                            <span class="fact-value">@L["Raw and Unfiltered"]</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-4">
+                        <div class="fact-card">
+                            <i class="bi bi-house-heart" aria-hidden="true"></i>
+                            <span class="fact-value">@L["Family Harvested"]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="~/img/products/honeycomb-cut.jpg" alt="" class="about-img" />
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="contact" class="section-pad">
+    <div class="container">
+        <header class="section-head">
+            <h2 class="section-title">@L["Get in Touch"]</h2>
+            <p class="section-sub">@L["ContactIntro"]</p>
+        </header>
+
+        <ul class="contact-list list-unstyled">
+            <li>
+                <i class="bi bi-telephone" aria-hidden="true"></i>
+                <div>
+                    <span class="contact-label">@L["To contact and order"]</span>
+                    <a href="@Model.PhoneHref" dir="ltr">@Model.Phone</a>
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-envelope-at" aria-hidden="true"></i>
+                <div>
+                    <span class="contact-label">@L["Email"]</span>
+                    <a href="mailto:@Model.Email" dir="ltr">@Model.Email</a>
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                <div>
+                    <span class="contact-label">@L["For pickup"]</span>
+                    @foreach (var loc in Model.PickupLocations)
+                    {
+                        <a class="map-link" href="@loc.MapUrl" target="_blank" rel="noopener">
+                            @loc.Name()<i class="bi bi-box-arrow-up-right ms-1 small" aria-hidden="true"></i>
+                        </a>
+                    }
+                </div>
+            </li>
+        </ul>
+    </div>
+</section>

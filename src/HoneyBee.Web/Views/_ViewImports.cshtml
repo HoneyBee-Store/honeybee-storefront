@@ -1,3 +1,8 @@
-﻿@using HoneyBee.Web
+@using HoneyBee.Web
 @using HoneyBee.Web.Models
+@using Microsoft.Extensions.Localization
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@* One shared string table for all UI chrome, injected once so no view has to
+   ask for it. Product text is NOT here — it lives in per-language columns. *@
+@inject IStringLocalizer<SharedResource> L

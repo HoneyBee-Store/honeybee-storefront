@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="HoneyBee Shop" xml:space="preserve">
+    <value>متجر عسل النحل</value>
+  </data>
+  <data name="Skip to main content" xml:space="preserve">
+    <value>تخطَّ إلى المحتوى الرئيسي</value>
+  </data>
+
+  <data name="Home" xml:space="preserve">
+    <value>الرئيسية</value>
+  </data>
+  <data name="Products" xml:space="preserve">
+    <value>المنتجات</value>
+  </data>
+  <data name="Our Story" xml:space="preserve">
+    <value>قصتنا</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>تواصل معنا</value>
+  </data>
+
+  <data name="Raw and Natural" xml:space="preserve">
+    <value>خام وطبيعي</value>
+  </data>
+  <data name="Pure Honey, Straight From the Hive" xml:space="preserve">
+    <value>عسل نقي، مباشرة من الخلية</value>
+  </data>
+  <data name="HeroLead" xml:space="preserve">
+    <value>عسل ومنتجات نحل من خلايانا وحصادنا. اختر ما يعجبك وتواصل معنا لتأكيد الطلب والاستلام.</value>
+  </data>
+  <data name="View Products" xml:space="preserve">
+    <value>تصفّح المنتجات</value>
+  </data>
+
+  <data name="Our Products" xml:space="preserve">
+    <value>منتجاتنا</value>
+  </data>
+  <data name="ProductsIntro" xml:space="preserve">
+    <value>كل عبوة تشاهدها هنا منتج حقيقي من حصادنا.</value>
+  </data>
+  <data name="In Stock" xml:space="preserve">
+    <value>متوفر</value>
+  </data>
+  <data name="Out of Stock" xml:space="preserve">
+    <value>غير متوفر</value>
+  </data>
+  <data name="Price on request" xml:space="preserve">
+    <value>السعر عند الطلب</value>
+  </data>
+  <data name="Ask about this product" xml:space="preserve">
+    <value>اسأل عن هذا المنتج</value>
+  </data>
+  <data name="Back to products" xml:space="preserve">
+    <value>العودة إلى المنتجات</value>
+  </data>
+
+  <data name="StoryBody" xml:space="preserve">
+    <value>كل عبوة تشاهدها في هذه الصفحة تأتي من خلايانا وحصادنا. تواصل معنا مباشرة لتأكيد طلبك والاتفاق على موعد الاستلام.</value>
+  </data>
+  <data name="100% Natural" xml:space="preserve">
+    <value>طبيعي ١٠٠٪</value>
+  </data>
+  <data name="Raw and Unfiltered" xml:space="preserve">
+    <value>خام وغير مفلتر</value>
+  </data>
+  <data name="Family Harvested" xml:space="preserve">
+    <value>حصاد عائلي</value>
+  </data>
+
+  <data name="Get in Touch" xml:space="preserve">
+    <value>تواصل معنا</value>
+  </data>
+  <data name="ContactIntro" xml:space="preserve">
+    <value>الطلب عبر الإنترنت غير متاح بعد — تواصل معنا مباشرة للاستفسار عن منتجاتنا.</value>
+  </data>
+  <data name="To contact and order" xml:space="preserve">
+    <value>للتواصل والطلب</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="For pickup" xml:space="preserve">
+    <value>للاستلام</value>
+  </data>
+  <data name="View on map" xml:space="preserve">
+    <value>عرض على الخريطة</value>
+  </data>
+
+  <data name="All rights reserved." xml:space="preserve">
+    <value>جميع الحقوق محفوظة.</value>
+  </data>
+</root>

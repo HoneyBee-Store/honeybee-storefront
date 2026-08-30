@@ -15,7 +15,7 @@ sequence.
 - [x] Domain model + `AppDbContext`
 - [x] Seed importing the v1 catalogue (10 products, 2 pickup locations)
 - [x] Initial migration
-- [ ] Storefront pages rendering from the database
+- [x] Storefront pages rendering from the database
 - [ ] Deploy to real hosting
 - [ ] Admin panel (phase 2)
 - [ ] Cart and order requests (phase 3)

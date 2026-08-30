@@ -2,9 +2,35 @@ using HoneyBee.Web.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+// Views resolve UI text through IStringLocalizer<SharedResource>, which reads
+// Resources/SharedResource.{culture}.resx. Not IViewLocalizer — that looks for
+// a resource file per view instead of one shared table.
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Arabic is the default and English is opt-in, matching v1. Product text comes
+// from per-language columns rather than resources, so the server needs to know
+// the culture before it can render a page at all.
+var supportedCultures = new[] { new CultureInfo("ar"), new CultureInfo("en") };
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("ar");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+
+    // Only honour an explicit choice. Without this, an English browser
+    // Accept-Language header would silently override the Arabic default.
+    options.RequestCultureProviders = new List<IRequestCultureProvider>
+    {
+        new CookieRequestCultureProvider()
+    };
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
@@ -43,6 +69,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRequestLocalization(
+    app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
+
 app.UseRouting();
 
 app.UseAuthentication();
