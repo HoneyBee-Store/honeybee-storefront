@@ -82,14 +82,17 @@ public class CartController : Controller
 
     // ---------- checkout ----------
 
-    [Authorize]
+    // Guest checkout: requiring an account first cost more orders than it was
+    // worth. Signed-in customers still get their details filled in.
     [HttpGet]
     public async Task<IActionResult> Checkout()
     {
         var cart = await BuildCartAsync();
         if (cart.IsEmpty) return RedirectToAction(nameof(Index));
 
-        var user = await _users.GetUserAsync(User);
+        var user = User.Identity?.IsAuthenticated == true
+            ? await _users.GetUserAsync(User)
+            : null;
 
         return View(new CheckoutViewModel
         {
@@ -102,13 +105,18 @@ public class CartController : Controller
         });
     }
 
-    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Checkout(CheckoutViewModel model)
     {
         var cart = await BuildCartAsync();
         if (cart.IsEmpty) return RedirectToAction(nameof(Index));
+
+        if (!PhoneNumbers.LooksValid(model.Phone))
+        {
+            ModelState.AddModelError(nameof(model.Phone),
+                _l["Enter a Jordanian mobile number, e.g. 0790000000."]);
+        }
 
         if (!await _db.PickupLocations.AnyAsync(l => l.Id == model.PickupLocationId && l.IsActive))
         {
@@ -161,14 +169,24 @@ public class CartController : Controller
         // on it — that page was one extra click for something the customer had
         // already asked for. The order is saved either way, and Confirmation is
         // still reachable by order number.
+        RememberOrder(order.OrderNumber);
         TempData["JustOrdered"] = order.OrderNumber;
         return Redirect(_notifier.BuildWhatsAppLink(order));
     }
 
-    [Authorize]
+    /// <summary>
+    /// Only the visitor who placed the order (or the owner) may see it. Order
+    /// numbers run in sequence, so without this check anyone could count up
+    /// from HB-2608-0001 and read every customer's name and phone number.
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> Confirmation(string orderNumber)
     {
+        if (!PlacedInThisSession(orderNumber) && !User.IsInRole(Roles.Admin))
+        {
+            return NotFound();
+        }
+
         var order = await _db.Orders
             .Include(o => o.Items)
             .Include(o => o.PickupLocation)
@@ -229,6 +247,19 @@ public class CartController : Controller
 
         return model;
     }
+
+    private const string MyOrdersKey = "myOrders";
+
+    private void RememberOrder(string orderNumber)
+    {
+        var existing = HttpContext.Session.GetString(MyOrdersKey) ?? "";
+        HttpContext.Session.SetString(MyOrdersKey, $"{existing}{orderNumber},");
+    }
+
+    private bool PlacedInThisSession(string orderNumber) =>
+        (HttpContext.Session.GetString(MyOrdersKey) ?? "")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Contains(orderNumber);
 
     private async Task<string> NextOrderNumberAsync()
     {
