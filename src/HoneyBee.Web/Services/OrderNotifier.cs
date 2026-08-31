@@ -8,7 +8,7 @@ namespace HoneyBee.Web.Services;
 public class ShopSettings
 {
     /// <summary>The shop's own WhatsApp number, in international form.</summary>
-    public string WhatsAppNumber { get; set; } = "+962780364203";
+    public string WhatsAppNumber { get; set; } = "+962799423449";
     public string OrderEmail { get; set; } = "khaledehmide3@gmail.com";
 }
 
