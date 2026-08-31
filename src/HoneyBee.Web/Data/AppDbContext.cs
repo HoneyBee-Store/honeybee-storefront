@@ -1,4 +1,5 @@
 using HoneyBee.Web.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,7 @@ namespace HoneyBee.Web.Data;
 /// Inherits from IdentityDbContext so the admin login shares one database and
 /// one migration history with the shop tables.
 /// </summary>
-public class AppDbContext : IdentityDbContext
+public class AppDbContext : IdentityDbContext<AppUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

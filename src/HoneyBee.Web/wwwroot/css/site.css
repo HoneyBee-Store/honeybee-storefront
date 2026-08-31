@@ -311,3 +311,22 @@ button.badge { cursor: pointer; font: inherit; font-size: .75rem; padding: .35em
 
 /* Price reads as the important number; the unit is supporting detail. */
 .price-amount { font-weight: 600; color: var(--bs-body-color); }
+
+/* ---------- Customer account pages ---------- */
+.auth-card {
+  background: var(--hb-surface);
+  border: 1px solid var(--hb-border);
+  border-radius: var(--hb-radius);
+  box-shadow: var(--hb-shadow);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.profile-list { margin: 0; }
+.profile-list dt {
+  font-size: .74rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--bs-secondary-color);
+  font-weight: 600;
+}
+.profile-list dd { margin-bottom: 1.1rem; font-weight: 500; }

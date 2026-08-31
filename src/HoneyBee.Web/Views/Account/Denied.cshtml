@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = L["Not available"].Value;
+}
+
+<section class="section-pad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card text-center">
+                    <p class="fs-1 mb-2" aria-hidden="true">🔒</p>
+                    <h1 class="h4 mb-3">@L["Not available"]</h1>
+                    <p class="text-body-secondary">@L["DeniedBody"]</p>
+                    <a class="btn btn-honey mt-2" asp-controller="Home" asp-action="Index">@L["Back to the shop"]</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,11 +1,13 @@
+using HoneyBee.Web.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace HoneyBee.Web.Data;
 
 /// <summary>
-/// Creates the first admin account from configuration, because the site has no
-/// registration page — customers never sign in, and a public "create the first
-/// admin" page is a well-known way to lose a site to whoever finds it first.
+/// Creates the Admin role and the first admin account from configuration.
+/// There is no registration page for admins — customers have one, but a public
+/// "create the first admin" page is a well-known way to lose a site to whoever
+/// finds it first.
 ///
 /// Set these outside the repo:
 ///   dotnet user-secrets set "Admin:Email" "you@example.com"
@@ -18,10 +20,16 @@ namespace HoneyBee.Web.Data;
 public static class AdminSeeder
 {
     public static async Task SeedAsync(
-        UserManager<IdentityUser> users,
+        UserManager<AppUser> users,
+        RoleManager<IdentityRole> roles,
         IConfiguration config,
         ILogger logger)
     {
+        if (!await roles.RoleExistsAsync(Roles.Admin))
+        {
+            await roles.CreateAsync(new IdentityRole(Roles.Admin));
+        }
+
         var email = config["Admin:Email"];
         var password = config["Admin:Password"];
 
@@ -33,26 +41,37 @@ public static class AdminSeeder
             return;
         }
 
-        if (await users.FindByEmailAsync(email) is not null) return;
+        var user = await users.FindByEmailAsync(email);
 
-        var user = new IdentityUser
+        if (user is null)
         {
-            UserName = email,
-            Email = email,
-            EmailConfirmed = true
-        };
+            user = new AppUser
+            {
+                UserName = email,   // admins sign in with email; customers use their phone
+                Email = email,
+                EmailConfirmed = true,
+                FullName = "Shop owner"
+            };
 
-        var result = await users.CreateAsync(user, password);
+            var result = await users.CreateAsync(user, password);
 
-        if (result.Succeeded)
-        {
+            if (!result.Succeeded)
+            {
+                // Usually the password failing the strength rules in Program.cs.
+                logger.LogError("Could not create admin account: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Description)));
+                return;
+            }
+
             logger.LogInformation("Created admin account {Email}.", email);
         }
-        else
+
+        // Runs even for an existing account, so an admin created before roles
+        // existed still gets promoted rather than being locked out.
+        if (!await users.IsInRoleAsync(user, Roles.Admin))
         {
-            // Usually the password failing the strength rules in Program.cs.
-            logger.LogError("Could not create admin account: {Errors}",
-                string.Join("; ", result.Errors.Select(e => e.Description)));
+            await users.AddToRoleAsync(user, Roles.Admin);
+            logger.LogInformation("Granted the Admin role to {Email}.", email);
         }
     }
 }

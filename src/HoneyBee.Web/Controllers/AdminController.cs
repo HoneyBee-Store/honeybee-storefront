@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HoneyBee.Web.Controllers;
 
-[Authorize]
+// Role-gated, not just [Authorize]: customers can sign in too, and a bare
+// [Authorize] would let any of them reach the admin.
+[Authorize(Roles = Roles.Admin)]
 public class AdminController : Controller
 {
     private const long MaxImageBytes = 8 * 1024 * 1024;
@@ -17,10 +19,10 @@ public class AdminController : Controller
     private static readonly string[] AllowedImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
 
     private readonly AppDbContext _db;
-    private readonly SignInManager<IdentityUser> _signIn;
+    private readonly SignInManager<AppUser> _signIn;
     private readonly IWebHostEnvironment _env;
 
-    public AdminController(AppDbContext db, SignInManager<IdentityUser> signIn, IWebHostEnvironment env)
+    public AdminController(AppDbContext db, SignInManager<AppUser> signIn, IWebHostEnvironment env)
     {
         _db = db;
         _signIn = signIn;

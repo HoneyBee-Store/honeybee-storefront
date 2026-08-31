@@ -152,4 +152,82 @@
   <data name="JOD" xml:space="preserve">
     <value>د.أ</value>
   </data>
+  <data name="Create an account" xml:space="preserve">
+    <value>إنشاء حساب</value>
+  </data>
+  <data name="Create account" xml:space="preserve">
+    <value>إنشاء الحساب</value>
+  </data>
+  <data name="AccountIntro" xml:space="preserve">
+    <value>أنشئ حسابًا لتسريع طلباتك القادمة.</value>
+  </data>
+  <data name="Full name" xml:space="preserve">
+    <value>الاسم الكامل</value>
+  </data>
+  <data name="Phone number" xml:space="preserve">
+    <value>رقم الهاتف</value>
+  </data>
+  <data name="PhoneHelp" xml:space="preserve">
+    <value>هذا هو الرقم الذي ستسجّل الدخول به، وسنتواصل معك عليه لتأكيد الطلب.</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>كلمة المرور</value>
+  </data>
+  <data name="PasswordHelp" xml:space="preserve">
+    <value>١٠ أحرف على الأقل.</value>
+  </data>
+  <data name="Confirm password" xml:space="preserve">
+    <value>تأكيد كلمة المرور</value>
+  </data>
+  <data name="Sign in" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="Sign out" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="Keep me signed in" xml:space="preserve">
+    <value>أبقني مسجّلًا</value>
+  </data>
+  <data name="Already have an account?" xml:space="preserve">
+    <value>لديك حساب بالفعل؟</value>
+  </data>
+  <data name="No account yet?" xml:space="preserve">
+    <value>ليس لديك حساب؟</value>
+  </data>
+  <data name="Create one" xml:space="preserve">
+    <value>أنشئ حسابًا</value>
+  </data>
+  <data name="My account" xml:space="preserve">
+    <value>حسابي</value>
+  </data>
+  <data name="OrdersComingSoon" xml:space="preserve">
+    <value>سجلّ الطلبات سيظهر هنا فور تفعيل الطلب عبر الموقع. حتى ذلك الحين، تواصل معنا هاتفيًا.</value>
+  </data>
+  <data name="Enter a Jordanian mobile number, e.g. 0790000000." xml:space="preserve">
+    <value>أدخل رقم هاتف أردني، مثال ٠٧٩٠٠٠٠٠٠٠.</value>
+  </data>
+  <data name="An account already uses this number." xml:space="preserve">
+    <value>يوجد حساب مسجّل بهذا الرقم.</value>
+  </data>
+  <data name="Incorrect phone number or password." xml:space="preserve">
+    <value>رقم الهاتف أو كلمة المرور غير صحيحة.</value>
+  </data>
+  <data name="Too many attempts. Please try again later." xml:space="preserve">
+    <value>محاولات كثيرة. يُرجى المحاولة لاحقًا.</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>الحساب</value>
+  </data>
+  <data name="Admin" xml:space="preserve">
+    <value>الإدارة</value>
+  </data>
+  <data name="Not available" xml:space="preserve">
+    <value>غير متاح</value>
+  </data>
+  <data name="DeniedBody" xml:space="preserve">
+    <value>هذه الصفحة مخصّصة لإدارة المتجر فقط.</value>
+  </data>
+  <data name="Back to the shop" xml:space="preserve">
+    <value>العودة إلى المتجر</value>
+  </data>
 </root>

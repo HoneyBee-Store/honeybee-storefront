@@ -1,4 +1,5 @@
 using HoneyBee.Web.Data;
+using HoneyBee.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,13 +40,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // latter scaffolds a full self-service account UI — register, forgot password,
 // 2FA — and none of that belongs on a shop where customers never sign in.
 // Phase 2 adds a single hand-written login page against SignInManager.
-builder.Services.AddIdentityCore<IdentityUser>(options =>
+builder.Services.AddIdentityCore<AppUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.Password.RequiredLength = 10;
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.User.RequireUniqueEmail = true;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager();
 
@@ -55,7 +57,9 @@ builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Admin/Login";
-    options.AccessDeniedPath = "/Admin/Login";
+    // Not the login page: someone hitting this is already signed in, and
+    // being asked to sign in again explains nothing.
+    options.AccessDeniedPath = "/Account/Denied";
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 });
@@ -97,7 +101,8 @@ await using (var scope = app.Services.CreateAsyncScope())
     await DbSeeder.SeedAsync(db);
 
     await AdminSeeder.SeedAsync(
-        sp.GetRequiredService<UserManager<IdentityUser>>(),
+        sp.GetRequiredService<UserManager<AppUser>>(),
+        sp.GetRequiredService<RoleManager<IdentityRole>>(),
         app.Configuration,
         sp.GetRequiredService<ILoggerFactory>().CreateLogger("AdminSeeder"));
 }

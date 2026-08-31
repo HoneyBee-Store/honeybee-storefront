@@ -50,6 +50,29 @@
                     <li class="nav-item"><a class="nav-link" href="~/#products">@L["Products"]</a></li>
                     <li class="nav-item"><a class="nav-link" href="~/#about">@L["Our Story"]</a></li>
                     <li class="nav-item"><a class="nav-link" href="~/#contact">@L["Contact"]</a></li>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @* The owner has their own area; customers get their profile. *@
+                        @if (User.IsInRole(Roles.Admin))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Products">@L["Admin"]</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Profile">@L["My account"]</a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">@L["Sign in"]</a>
+                        </li>
+                    }
+
                     <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
                         <form asp-controller="Home" asp-action="SetLanguage" method="post" class="lang-form">
                             <input type="hidden" name="culture" value="@(isAr ? "en" : "ar")" />
