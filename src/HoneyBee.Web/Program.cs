@@ -43,7 +43,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentityCore<AppUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
-        options.Password.RequiredLength = 10;
+        // Relaxed on a developer machine only. In production these same rules
+        // govern customer passwords too, so they stay strict there.
+        var dev = builder.Environment.IsDevelopment();
+        options.Password.RequiredLength = dev ? 6 : 10;
+        options.Password.RequireNonAlphanumeric = !dev;
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.User.RequireUniqueEmail = true;
     })

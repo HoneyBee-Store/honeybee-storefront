@@ -10,11 +10,12 @@ namespace HoneyBee.Web.Data;
 /// finds it first.
 ///
 /// Set these outside the repo:
+///   dotnet user-secrets set "Admin:UserName" "Admin"
 ///   dotnet user-secrets set "Admin:Email" "you@example.com"
 ///   dotnet user-secrets set "Admin:Password" "a long passphrase"
 ///
 /// In production supply Admin__Email / Admin__Password as environment
-/// variables. If either is missing, no account is created and the app still
+/// variables. If username or password is missing, no account is created and the app still
 /// starts — the storefront does not depend on it.
 /// </summary>
 public static class AdminSeeder
@@ -30,24 +31,26 @@ public static class AdminSeeder
             await roles.CreateAsync(new IdentityRole(Roles.Admin));
         }
 
+        // The owner signs in with a username; the email is contact detail only.
+        var userName = config["Admin:UserName"];
         var email = config["Admin:Email"];
         var password = config["Admin:Password"];
 
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
         {
             logger.LogWarning(
-                "Admin:Email / Admin:Password not configured — no admin account created. " +
+                "Admin:UserName / Admin:Password not configured — no admin account created. " +
                 "You will not be able to sign in at /Admin/Login until they are set.");
             return;
         }
 
-        var user = await users.FindByEmailAsync(email);
+        var user = await users.FindByNameAsync(userName);
 
         if (user is null)
         {
             user = new AppUser
             {
-                UserName = email,   // admins sign in with email; customers use their phone
+                UserName = userName,   // owner signs in with this; customers use their phone
                 Email = email,
                 EmailConfirmed = true,
                 FullName = "Shop owner"
@@ -63,7 +66,7 @@ public static class AdminSeeder
                 return;
             }
 
-            logger.LogInformation("Created admin account {Email}.", email);
+            logger.LogInformation("Created admin account {UserName}.", userName);
         }
 
         // Runs even for an existing account, so an admin created before roles
@@ -71,7 +74,7 @@ public static class AdminSeeder
         if (!await users.IsInRoleAsync(user, Roles.Admin))
         {
             await users.AddToRoleAsync(user, Roles.Admin);
-            logger.LogInformation("Granted the Admin role to {Email}.", email);
+            logger.LogInformation("Granted the Admin role to {UserName}.", userName);
         }
     }
 }

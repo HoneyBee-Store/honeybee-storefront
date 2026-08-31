@@ -45,7 +45,7 @@ public class AdminController : Controller
         // lockoutOnFailure guards against someone grinding through passwords;
         // the limit is set in Program.cs.
         var result = await _signIn.PasswordSignInAsync(
-            model.Email, model.Password, isPersistent: true, lockoutOnFailure: true);
+            model.UserName, model.Password, isPersistent: true, lockoutOnFailure: true);
 
         if (result.Succeeded)
         {
@@ -55,11 +55,11 @@ public class AdminController : Controller
         }
 
         // Deliberately vague: saying "no such account" tells an attacker which
-        // addresses are real.
+        // usernames are real.
         ModelState.AddModelError(string.Empty,
             result.IsLockedOut
                 ? "Too many attempts. Try again later."
-                : "Incorrect email or password.");
+                : "Incorrect username or password.");
 
         return View(model);
     }
