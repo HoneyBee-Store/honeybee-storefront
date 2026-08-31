@@ -18,7 +18,7 @@ sequence.
 - [x] Storefront pages rendering from the database
 - [ ] Deploy to real hosting
 - [x] Admin panel (phase 2)
-- [ ] Cart and order requests (phase 3)
+- [x] Cart and order requests (phase 3)
 
 ## Running it locally
 

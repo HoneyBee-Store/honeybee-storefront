@@ -230,4 +230,91 @@
   <data name="Back to the shop" xml:space="preserve">
     <value>العودة إلى المتجر</value>
   </data>
+  <data name="My request" xml:space="preserve">
+    <value>طلبي</value>
+  </data>
+  <data name="Your request is empty." xml:space="preserve">
+    <value>طلبك فارغ.</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>أضف</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>الحجم</value>
+  </data>
+  <data name="kg" xml:space="preserve">
+    <value>كغ</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>الكمية</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>تحديث</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>إزالة</value>
+  </data>
+  <data name="Product" xml:space="preserve">
+    <value>المنتج</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="Items" xml:space="preserve">
+    <value>عدد القطع</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>ملخّص الطلب</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>متابعة</value>
+  </data>
+  <data name="CartNote" xml:space="preserve">
+    <value>لن يتم الدفع الآن. سنتواصل معك لتأكيد الطلب وموعد الاستلام.</value>
+  </data>
+  <data name="Confirm your request" xml:space="preserve">
+    <value>تأكيد الطلب</value>
+  </data>
+  <data name="Pickup location" xml:space="preserve">
+    <value>مكان الاستلام</value>
+  </data>
+  <data name="Choose a location" xml:space="preserve">
+    <value>اختر مكان الاستلام</value>
+  </data>
+  <data name="Notes (optional)" xml:space="preserve">
+    <value>ملاحظات (اختياري)</value>
+  </data>
+  <data name="Send request" xml:space="preserve">
+    <value>إرسال الطلب</value>
+  </data>
+  <data name="CheckoutPhoneHelp" xml:space="preserve">
+    <value>سنتواصل معك على هذا الرقم لتأكيد الطلب.</value>
+  </data>
+  <data name="CheckoutNote" xml:space="preserve">
+    <value>بإرسال الطلب تحفظ طلبك لدينا، ثم يمكنك إرساله عبر واتساب مباشرة.</value>
+  </data>
+  <data name="Request sent" xml:space="preserve">
+    <value>تم إرسال الطلب</value>
+  </data>
+  <data name="ConfirmationBody" xml:space="preserve">
+    <value>استلمنا طلبك. رقم الطلب:</value>
+  </data>
+  <data name="Send on WhatsApp" xml:space="preserve">
+    <value>أرسل عبر واتساب</value>
+  </data>
+  <data name="WhatsAppNote" xml:space="preserve">
+    <value>سيفتح واتساب بتفاصيل طلبك جاهزة — اضغط إرسال ليصلنا فورًا.</value>
+  </data>
+  <data name="Currently unavailable" xml:space="preserve">
+    <value>غير متوفر حاليًا</value>
+  </data>
+  <data name="Added to your request." xml:space="preserve">
+    <value>أُضيف إلى طلبك.</value>
+  </data>
+  <data name="Sorry, that product is out of stock." xml:space="preserve">
+    <value>عذرًا، هذا المنتج غير متوفر حاليًا.</value>
+  </data>
+  <data name="Please choose where to collect your order." xml:space="preserve">
+    <value>يرجى اختيار مكان الاستلام.</value>
+  </data>
 </root>

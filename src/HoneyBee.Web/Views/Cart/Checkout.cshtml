@@ -1,0 +1,97 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = L["Confirm your request"].Value;
+}
+
+<section class="section-pad">
+    <div class="container">
+        <h1 class="section-title">@L["Confirm your request"]</h1>
+
+        <form asp-action="Checkout" method="post">
+            <div class="row g-4 mt-1">
+                <div class="col-lg-7">
+                    <div class="auth-card">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="CustomerName" class="form-label">@L["Full name"]</label>
+                            <input asp-for="CustomerName" class="form-control" autocomplete="name" />
+                            <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">@L["Phone number"]</label>
+                            <input asp-for="Phone" class="form-control" type="tel" dir="ltr" autocomplete="tel" />
+                            <div class="form-text">@L["CheckoutPhoneHelp"]</div>
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PickupLocationId" class="form-label">@L["Pickup location"]</label>
+                            <select asp-for="PickupLocationId" class="form-select">
+                                <option value="">@L["Choose a location"]</option>
+                                @foreach (var loc in Model.PickupLocations)
+                                {
+                                    <option value="@loc.Id">@loc.Name()</option>
+                                }
+                            </select>
+                            <span asp-validation-for="PickupLocationId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-2">
+                            <label asp-for="CustomerNotes" class="form-label">@L["Notes (optional)"]</label>
+                            <textarea asp-for="CustomerNotes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="auth-card">
+                        <h2 class="h5 mb-3">@L["Summary"]</h2>
+
+                        <ul class="list-unstyled mb-3">
+                            @foreach (var line in Model.Cart.Lines)
+                            {
+                                <li class="d-flex justify-content-between gap-2 mb-2">
+                                    <span>
+                                        @line.Product.Name()
+                                        <span class="text-body-secondary small">
+                                            — @(line.SizeKg == 1m ? "1" : "½") @L["kg"] × @line.Quantity
+                                        </span>
+                                    </span>
+                                    <span class="text-nowrap">
+                                        @if (line.LineTotal is not null)
+                                        {
+                                            @($"{line.LineTotal:0.###}")
+                                        }
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+
+                        <div class="d-flex justify-content-between border-top pt-2 mb-4">
+                            <strong>@L["Total"]</strong>
+                            <strong>
+                                @if (Model.Cart.Total is null)
+                                {
+                                    @L["Price on request"]
+                                }
+                                else
+                                {
+                                    @($"{Model.Cart.Total:0.###}") <text> </text> @L["JOD"]
+                                }
+                            </strong>
+                        </div>
+
+                        <button type="submit" class="btn btn-honey w-100">@L["Send request"]</button>
+                        <p class="small text-body-secondary mt-3 mb-0">@L["CheckoutNote"]</p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

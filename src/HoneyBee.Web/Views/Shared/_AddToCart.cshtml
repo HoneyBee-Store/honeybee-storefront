@@ -1,0 +1,34 @@
+@model Product
+@inject IStringLocalizer<SharedResource> L
+@{
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+@if (Model.InStock)
+{
+    <form asp-controller="Cart" asp-action="Add" method="post" class="add-form">
+        <input type="hidden" name="productId" value="@Model.Id" />
+        <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+        <div class="add-row">
+            @* Honey is priced per kilo and sold in these two jars, so the size
+               is what turns the rate into a price. *@
+            <select name="sizeKg" class="form-select form-select-sm" aria-label="@L["Size"]">
+                <option value="1">1 @L["kg"]</option>
+                <option value="0.5">½ @L["kg"]</option>
+            </select>
+
+            <input type="number" name="quantity" value="1" min="1" max="99"
+                   class="form-control form-control-sm" aria-label="@L["Quantity"]" />
+
+            <button type="submit" class="btn btn-sm btn-honey">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                <span>@L["Add"]</span>
+            </button>
+        </div>
+    </form>
+}
+else
+{
+    <p class="small text-body-secondary mb-0">@L["Currently unavailable"]</p>
+}

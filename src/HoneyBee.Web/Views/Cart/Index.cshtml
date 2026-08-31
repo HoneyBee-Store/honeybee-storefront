@@ -1,0 +1,110 @@
+@model CartViewModel
+@{
+    ViewData["Title"] = L["My request"].Value;
+}
+
+<section class="section-pad">
+    <div class="container">
+        <h1 class="section-title">@L["My request"]</h1>
+
+        @if (Model.IsEmpty)
+        {
+            <div class="auth-card text-center mt-4">
+                <p class="fs-1 mb-2" aria-hidden="true">🍯</p>
+                <p class="mb-3">@L["Your request is empty."]</p>
+                <a class="btn btn-honey" asp-controller="Home" asp-action="Index">@L["View Products"]</a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4 mt-1">
+                <div class="col-lg-8">
+                    <div class="cart-table-wrap">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">@L["Product"]</th>
+                                    <th scope="col">@L["Size"]</th>
+                                    <th scope="col">@L["Quantity"]</th>
+                                    <th scope="col">@L["Total"]</th>
+                                    <th scope="col"><span class="visually-hidden">@L["Remove"]</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var line in Model.Lines)
+                                {
+                                    <tr>
+                                        <td>@line.Product.Name()</td>
+                                        <td class="text-nowrap">
+                                            @(line.SizeKg == 1m ? "1" : "½") @L["kg"]
+                                        </td>
+                                        <td>
+                                            <form asp-action="Update" method="post" class="qty-form">
+                                                <input type="hidden" name="productId" value="@line.Product.Id" />
+                                                <input type="hidden" name="sizeKg" value="@line.SizeKg" />
+                                                <input type="number" name="quantity" value="@line.Quantity"
+                                                       min="0" max="99" class="form-control form-control-sm qty-input"
+                                                       aria-label="@L["Quantity"]" />
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                    @L["Update"]
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td class="text-nowrap">
+                                            @if (line.LineTotal is null)
+                                            {
+                                                <span class="text-body-secondary small">@L["Price on request"]</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="price-amount">@($"{line.LineTotal:0.###}") @L["JOD"]</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <form asp-action="Remove" method="post">
+                                                <input type="hidden" name="productId" value="@line.Product.Id" />
+                                                <input type="hidden" name="sizeKg" value="@line.SizeKg" />
+                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0"
+                                                        aria-label="@L["Remove"]">
+                                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="auth-card">
+                        <h2 class="h5 mb-3">@L["Summary"]</h2>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@L["Items"]</span>
+                            <span>@Model.TotalItems</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mb-4">
+                            <strong>@L["Total"]</strong>
+                            <strong>
+                                @if (Model.Total is null)
+                                {
+                                    @L["Price on request"]
+                                }
+                                else
+                                {
+                                    @($"{Model.Total:0.###}") <text> </text> @L["JOD"]
+                                }
+                            </strong>
+                        </div>
+
+                        <a class="btn btn-honey w-100" asp-action="Checkout">@L["Continue"]</a>
+
+                        <p class="small text-body-secondary mt-3 mb-0">@L["CartNote"]</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>

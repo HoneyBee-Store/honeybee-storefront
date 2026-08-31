@@ -50,6 +50,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
         b.Entity<OrderItem>(e =>
         {
             e.Property(i => i.UnitPriceSnapshot).HasPrecision(10, 3);
+            e.Property(i => i.SizeKg).HasPrecision(6, 3);   // 0.5, 1, …
 
             e.HasOne(i => i.Order)
              .WithMany(o => o.Items)

@@ -1,5 +1,6 @@
 using HoneyBee.Web.Data;
 using HoneyBee.Web.Models;
+using HoneyBee.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,20 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     };
 });
 
+// The basket lives in session — scratch data most visitors abandon, so it
+// only reaches the database at checkout.
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(4);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddSingleton(builder.Configuration.GetSection("Shop").Get<ShopSettings>() ?? new ShopSettings());
+builder.Services.AddSingleton(builder.Configuration.GetSection("Smtp").Get<SmtpSettings>() ?? new SmtpSettings());
+builder.Services.AddScoped<OrderNotifier>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
@@ -56,7 +71,9 @@ builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Admin/Login";
+    // Customers, not the owner: almost every redirect here is a shopper
+    // hitting checkout. The owner reaches /Admin/Login directly.
+    options.LoginPath = "/Account/Login";
     // Not the login page: someone hitting this is already signed in, and
     // being asked to sign in again explains nothing.
     options.AccessDeniedPath = "/Account/Denied";
@@ -78,6 +95,8 @@ app.UseRequestLocalization(
     app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();

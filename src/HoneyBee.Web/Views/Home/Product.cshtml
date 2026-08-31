@@ -55,11 +55,9 @@
                     <p class="lead-sm">@Model.Description()</p>
                 }
 
-                @* No cart yet — phase 3. Until then the call to action is a phone
-                   call, which is how orders actually get placed today. *@
-                <a class="btn btn-honey btn-lg mt-2" href="tel:+962780364203">
-                    <i class="bi bi-telephone-fill me-2" aria-hidden="true"></i>@L["Ask about this product"]
-                </a>
+                <div class="add-wrap mt-3">
+                    <partial name="_AddToCart" model="Model" />
+                </div>
             </div>
         </div>
     </div>

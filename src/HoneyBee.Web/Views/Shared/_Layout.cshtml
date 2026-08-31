@@ -50,6 +50,18 @@
                     <li class="nav-item"><a class="nav-link" href="~/#products">@L["Products"]</a></li>
                     <li class="nav-item"><a class="nav-link" href="~/#about">@L["Our Story"]</a></li>
                     <li class="nav-item"><a class="nav-link" href="~/#contact">@L["Contact"]</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-cart" asp-controller="Cart" asp-action="Index">
+                            <i class="bi bi-basket" aria-hidden="true"></i>
+                            <span>@L["My request"]</span>
+                            @{ var cartCount = Context.Session.GetCart().TotalItems; }
+                            @if (cartCount > 0)
+                            {
+                                <span class="cart-count">@cartCount</span>
+                            }
+                        </a>
+                    </li>
+
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         @* The owner has their own area; customers get their profile. *@
@@ -89,6 +101,15 @@
     </nav>
 
     <main id="main">
+        @if (TempData["CartMessage"] is string cartMessage)
+        {
+            <div class="container pt-3">
+                <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
+                    @cartMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        }
         @RenderBody()
     </main>
 

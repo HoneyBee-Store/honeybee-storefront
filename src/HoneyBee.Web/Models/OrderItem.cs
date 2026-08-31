@@ -24,12 +24,20 @@ public class OrderItem
     public string NameSnapshot { get; set; } = "";
 
     /// <summary>
-    /// The price charged, captured at checkout. Null while the shop is running
-    /// without prices. Same reasoning as <see cref="NameSnapshot"/>: raising a
-    /// price next month must not change what last month's orders say.
+    /// Jar size in kilograms — 1 or 0.5. Honey is priced per kilo, so the size
+    /// is what turns a rate into a line price.
+    /// </summary>
+    public decimal SizeKg { get; set; } = 1m;
+
+    /// <summary>
+    /// Price of ONE jar of this size, captured at checkout — not the per-kg
+    /// rate. Storing what was actually charged means raising a price next month
+    /// cannot change what last month's orders say they cost.
     /// </summary>
     public decimal? UnitPriceSnapshot { get; set; }
 
     [Range(1, 999)]
     public int Quantity { get; set; } = 1;
+
+    public decimal? LineTotal => UnitPriceSnapshot * Quantity;
 }

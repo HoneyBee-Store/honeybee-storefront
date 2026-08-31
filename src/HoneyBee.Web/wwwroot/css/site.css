@@ -330,3 +330,47 @@ button.badge { cursor: pointer; font: inherit; font-size: .75rem; padding: .35em
   font-weight: 600;
 }
 .profile-list dd { margin-bottom: 1.1rem; font-weight: 500; }
+
+/* ---------- Cart ---------- */
+.add-wrap { margin-top: .85rem; }
+.add-row { display: flex; gap: .4rem; align-items: center; }
+.add-row .form-select { flex: 0 0 6.5rem; }
+.add-row .form-control { flex: 0 0 4.5rem; }
+.add-row .btn { flex: 1 1 auto; white-space: nowrap; }
+
+.nav-cart { display: inline-flex; align-items: center; gap: .35rem; }
+.cart-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 .35rem;
+  border-radius: 999px;
+  background: var(--hb-accent);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.cart-table-wrap {
+  background: var(--hb-surface);
+  border: 1px solid var(--hb-border);
+  border-radius: var(--hb-radius);
+  box-shadow: var(--hb-shadow);
+  overflow-x: auto;
+  padding: .5rem 1rem;
+}
+.qty-form { display: flex; gap: .35rem; align-items: center; }
+.qty-input { width: 4.5rem; }
+
+.order-number {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--hb-accent);
+}
+
+/* WhatsApp green rather than the honey accent — people recognise the colour,
+   and this button leaves the site. */
+.btn-whatsapp { background: #25d366; border-color: #25d366; color: #fff; }
+.btn-whatsapp:hover, .btn-whatsapp:focus { background: #1da851; border-color: #1da851; color: #fff; }
