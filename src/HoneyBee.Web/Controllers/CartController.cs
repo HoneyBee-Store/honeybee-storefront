@@ -261,13 +261,31 @@ public class CartController : Controller
             .Split(',', StringSplitOptions.RemoveEmptyEntries)
             .Contains(orderNumber);
 
+    /// <summary>
+    /// Next reference for this month, taken from the highest number already
+    /// used rather than from a count. Counting breaks as soon as an order is
+    /// deleted: the count drops, the next order reuses a live number, and the
+    /// unique index rejects it mid-checkout.
+    ///
+    /// The suffix is zero-padded to a fixed width, so ordering the strings
+    /// orders the numbers.
+    /// </summary>
     private async Task<string> NextOrderNumberAsync()
     {
         var prefix = $"HB-{DateTime.UtcNow:yyMM}-";
-        var used = await _db.Orders
-            .Where(o => o.OrderNumber.StartsWith(prefix))
-            .CountAsync();
 
-        return $"{prefix}{used + 1:D4}";
+        var highest = await _db.Orders
+            .Where(o => o.OrderNumber.StartsWith(prefix))
+            .OrderByDescending(o => o.OrderNumber)
+            .Select(o => o.OrderNumber)
+            .FirstOrDefaultAsync();
+
+        var next = 1;
+        if (highest is not null && int.TryParse(highest[prefix.Length..], out var last))
+        {
+            next = last + 1;
+        }
+
+        return $"{prefix}{next:D4}";
     }
 }
