@@ -7,6 +7,20 @@
     <div class="container">
         <h1 class="section-title">@L["My request"]</h1>
 
+        @* Shown if they come back after submitting — WhatsApp may not have opened
+           on a desktop without the app, and without this there would be nothing
+           on the site telling them the order went through. *@
+        @if (TempData["JustOrdered"] is string justOrdered)
+        {
+            <div class="alert alert-success d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                <span>@L["Request sent"] — <strong>@justOrdered</strong></span>
+                <a class="btn btn-sm btn-honey"
+                   asp-action="Confirmation" asp-route-orderNumber="@justOrdered">
+                    @L["View details"]
+                </a>
+            </div>
+        }
+
         @if (Model.IsEmpty)
         {
             <div class="auth-card text-center mt-4">

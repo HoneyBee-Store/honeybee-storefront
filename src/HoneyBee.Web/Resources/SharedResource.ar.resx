@@ -317,4 +317,7 @@
   <data name="Please choose where to collect your order." xml:space="preserve">
     <value>يرجى اختيار مكان الاستلام.</value>
   </data>
+  <data name="View details" xml:space="preserve">
+    <value>عرض التفاصيل</value>
+  </data>
 </root>

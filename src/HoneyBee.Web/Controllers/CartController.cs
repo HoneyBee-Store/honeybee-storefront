@@ -157,7 +157,12 @@ public class CartController : Controller
 
         HttpContext.Session.SaveCart(new Cart());
 
-        return RedirectToAction(nameof(Confirmation), new { orderNumber = order.OrderNumber });
+        // Straight to WhatsApp rather than via a confirmation page with a button
+        // on it — that page was one extra click for something the customer had
+        // already asked for. The order is saved either way, and Confirmation is
+        // still reachable by order number.
+        TempData["JustOrdered"] = order.OrderNumber;
+        return Redirect(_notifier.BuildWhatsAppLink(order));
     }
 
     [Authorize]
