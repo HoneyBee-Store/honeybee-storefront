@@ -118,7 +118,11 @@ public static class DbSeeder
                 NameEn = s.NameEn,
                 DescriptionAr = s.DescAr,
                 DescriptionEn = s.DescEn,
-                Price = null,           // no prices yet — confirmed by phone
+                // Everything is sold by weight at the same rate, so a single
+                // per-kg price covers both jar sizes (½ kg is simply half).
+                Price = 15m,
+                UnitAr = "كيلو",
+                UnitEn = "kg",
                 InStock = s.InStock,
                 SortOrder = order++,
                 Images =

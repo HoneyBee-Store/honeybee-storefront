@@ -149,4 +149,7 @@
   <data name="All rights reserved." xml:space="preserve">
     <value>جميع الحقوق محفوظة.</value>
   </data>
+  <data name="JOD" xml:space="preserve">
+    <value>د.أ</value>
+  </data>
 </root>

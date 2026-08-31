@@ -63,7 +63,13 @@
                                     }
                                     else
                                     {
-                                        @($"{p.Price:0.###} JOD")
+                                        @* The unit matters here: "15 JOD" without "per kg"
+                                           reads as the price of the whole jar. *@
+                                        <span class="price-amount">@($"{p.Price:0.###}") @L["JOD"]</span>
+                                        @if (!string.IsNullOrWhiteSpace(p.Unit()))
+                                        {
+                                            <text> / @p.Unit()</text>
+                                        }
                                     }
                                 </span>
                             </div>

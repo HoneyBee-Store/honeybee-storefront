@@ -41,7 +41,7 @@
                         }
                         else
                         {
-                            @($"{Model.Price:0.###} JOD")
+                            <span class="price-amount">@($"{Model.Price:0.###}") @L["JOD"]</span>
                             @if (!string.IsNullOrWhiteSpace(Model.Unit()))
                             {
                                 <text> / @Model.Unit()</text>
