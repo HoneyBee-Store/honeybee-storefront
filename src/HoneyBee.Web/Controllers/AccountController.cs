@@ -100,14 +100,30 @@ public class AccountController : Controller
     {
         if (!ModelState.IsValid) return View(model);
 
-        var phone = PhoneNumbers.Normalise(model.Phone);
+        // Customers sign in with a phone number, the owner with a username.
+        // Deciding which by the shape of the input keeps this to a single
+        // attempt — trying both in turn would burn two of the five tries
+        // before lockout on every failed sign-in.
+        var identifier = PhoneNumbers.LooksValid(model.Phone)
+            ? PhoneNumbers.Normalise(model.Phone)
+            : model.Phone.Trim();
 
         var result = await _signIn.PasswordSignInAsync(
-            phone, model.Password, model.RememberMe, lockoutOnFailure: true);
+            identifier, model.Password, model.RememberMe, lockoutOnFailure: true);
 
         if (result.Succeeded)
         {
-            return LocalRedirect(Url.IsLocalUrl(model.ReturnUrl) ? model.ReturnUrl! : "/");
+            // An explicit destination wins; otherwise send the owner to the
+            // admin and everyone else to the shop.
+            if (Url.IsLocalUrl(model.ReturnUrl)) return LocalRedirect(model.ReturnUrl!);
+
+            var user = await _users.FindByNameAsync(identifier);
+            if (user is not null && await _users.IsInRoleAsync(user, Roles.Admin))
+            {
+                return RedirectToAction(nameof(AdminController.Products), "Admin");
+            }
+
+            return Redirect("/");
         }
 
         // One message for both "no such number" and "wrong password", so the
