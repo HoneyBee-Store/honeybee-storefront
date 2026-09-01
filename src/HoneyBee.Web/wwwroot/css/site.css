@@ -94,16 +94,32 @@ img { max-width: 100%; }
   border-radius: 2px;
 }
 
+/* Hidden by clipping, not by parking it off-canvas. In RTL a negative
+   inset-inline-start puts the link 999px off the RIGHT edge, and mobile
+   browsers size the layout viewport to the widest content before they
+   apply overflow clipping — so the whole page became pannable sideways,
+   showing a blank strip down the left. Clipping takes up no space at all. */
 .skip-link {
   position: absolute;
-  inset-inline-start: -999px;
+  inset-inline-start: 0;
   top: 0;
   z-index: 2000;
   background: var(--choc);
   color: var(--cream);
-  padding: .7rem 1.1rem;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-.skip-link:focus { inset-inline-start: 0; }
+.skip-link:focus {
+  padding: .7rem 1.1rem;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+}
 
 .container-hb {
   width: 100%;
