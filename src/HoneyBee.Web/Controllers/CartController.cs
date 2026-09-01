@@ -160,8 +160,11 @@ public class CartController : Controller
         await _db.SaveChangesAsync();
 
         // Saved first, notified second — a mail failure must never lose an order.
+        // The email is queued rather than awaited: the body is built here while
+        // the order is loaded, but the customer is not held on this button while
+        // a mail server is contacted.
         await _db.Entry(order).Reference(o => o.PickupLocation).LoadAsync();
-        await _notifier.TryEmailAsync(order);
+        _notifier.QueueOrderEmail(order);
 
         HttpContext.Session.SaveCart(new Cart());
 

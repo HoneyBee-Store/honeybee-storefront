@@ -1,0 +1,90 @@
+@model EmailSettingsViewModel
+@{
+    ViewData["Title"] = "Email";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0">Order emails</h1>
+</div>
+
+@if (Model.Sent)
+{
+    <div class="alert alert-success">
+        <strong>Sent.</strong> Check <span class="fw-semibold">@Model.SendsTo</span> — including the
+        spam folder the first time. If it arrived, real orders will arrive too.
+    </div>
+}
+
+@if (Model.Error is not null)
+{
+    <div class="alert alert-danger">
+        <strong>Could not send.</strong>
+        <div class="mt-1"><code>@Model.Error</code></div>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="fs-5">Status</span>
+            @if (Model.IsConfigured)
+            {
+                <span class="badge text-bg-success">On</span>
+            }
+            else
+            {
+                <span class="badge text-bg-secondary">Off</span>
+            }
+        </div>
+
+        @if (Model.IsConfigured)
+        {
+            <p class="mb-3">
+                Every order is emailed to <strong>@Model.SendsTo</strong>.
+                Sending happens in the background, so a slow mail server never delays
+                a customer at checkout — which also means a failure is invisible unless
+                you test it.
+            </p>
+            <form asp-action="SendTestEmail" method="post">
+                <button type="submit" class="btn btn-primary">Send a test email</button>
+            </form>
+        }
+        else
+        {
+            <p class="mb-2">
+                No mail server is configured, so orders are <strong>not</strong> emailed.
+                Nothing is lost: every order is saved and still opens in WhatsApp.
+            </p>
+            <p class="mb-0 text-muted">
+                To switch it on, set the <code>Smtp</code> settings, then restart the app.
+                The steps are in <code>README.md</code>.
+            </p>
+        }
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h2 class="h6 text-uppercase text-muted mb-3">If a test fails</h2>
+        <dl class="row mb-0 small">
+            <dt class="col-sm-4">5.7.0 / auth required</dt>
+            <dd class="col-sm-8">
+                Gmail rejects your normal password. You need an <em>App password</em>,
+                which requires 2-Step Verification to be on.
+            </dd>
+
+            <dt class="col-sm-4">Timed out</dt>
+            <dd class="col-sm-8">
+                The network is blocking outbound port 587 — common on office wifi.
+                Try from another connection.
+            </dd>
+
+            <dt class="col-sm-4">Arrived in spam</dt>
+            <dd class="col-sm-8">
+                Expected for a new sender. Mark it "not spam" once and later
+                messages land in the inbox.
+            </dd>
+        </dl>
+    </div>
+</div>

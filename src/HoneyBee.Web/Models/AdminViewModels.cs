@@ -72,3 +72,15 @@ public class ProductEditViewModel
 
     public string? CurrentImagePath { get; set; }
 }
+
+/// <summary>
+/// Backs the admin's email screen: whether sending is switched on, where it
+/// goes, and the outcome of a test send.
+/// </summary>
+public class EmailSettingsViewModel
+{
+    public bool IsConfigured { get; set; }
+    public string SendsTo { get; set; } = "";
+    public bool Sent { get; set; }
+    public string? Error { get; set; }
+}

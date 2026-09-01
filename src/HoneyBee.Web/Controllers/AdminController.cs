@@ -1,5 +1,6 @@
 using HoneyBee.Web.Data;
 using HoneyBee.Web.Models;
+using HoneyBee.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,12 +22,64 @@ public class AdminController : Controller
     private readonly AppDbContext _db;
     private readonly SignInManager<AppUser> _signIn;
     private readonly IWebHostEnvironment _env;
+    private readonly OrderNotifier _notifier;
 
-    public AdminController(AppDbContext db, SignInManager<AppUser> signIn, IWebHostEnvironment env)
+    public AdminController(AppDbContext db, SignInManager<AppUser> signIn,
+                           IWebHostEnvironment env, OrderNotifier notifier)
     {
         _db = db;
         _signIn = signIn;
         _env = env;
+        _notifier = notifier;
+    }
+
+    // ---------- email ----------
+
+    /// <summary>
+    /// Shows whether order emails are switched on, and lets the owner prove it
+    /// without placing a fake order. Sending is otherwise invisible — it runs in
+    /// the background and failures only reach the log.
+    /// </summary>
+    [HttpGet]
+    public IActionResult Email() => View(new EmailSettingsViewModel
+    {
+        IsConfigured = _notifier.IsConfigured,
+        SendsTo = _notifier.OrderEmail
+    });
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendTestEmail()
+    {
+        var model = new EmailSettingsViewModel
+        {
+            IsConfigured = _notifier.IsConfigured,
+            SendsTo = _notifier.OrderEmail
+        };
+
+        if (!_notifier.IsConfigured)
+        {
+            model.Error = "No mail server is configured yet, so there is nothing to test.";
+            return View(nameof(Email), model);
+        }
+
+        try
+        {
+            await _notifier.SendAsync(
+                _notifier.OrderEmail,
+                "HoneyBee Shop — test email",
+                "This is a test from the admin panel. If you are reading it, order emails will arrive here.");
+
+            model.Sent = true;
+        }
+        catch (Exception ex)
+        {
+            // The real message, not a friendly one: this screen exists to
+            // diagnose the settings, and "something went wrong" would defeat it.
+            model.Error = ex.GetBaseException().Message;
+        }
+
+        return View(nameof(Email), model);
     }
 
     // ---------- auth ----------

@@ -51,6 +51,36 @@ start. User Secrets only load in the Development environment, so set
 In production, supply the connection string as an environment variable instead:
 `ConnectionStrings__Default` (double underscore).
 
+## Order emails
+
+Every order is emailed to the address in `Shop:OrderEmail`. The server, port
+and sender are in `appsettings.json`; only the password is a secret.
+
+Gmail will not accept an account password over SMTP. It needs an **App
+password**, which requires 2-Step Verification:
+
+1. Turn on 2-Step Verification: <https://myaccount.google.com/security>
+2. Create an App password: <https://myaccount.google.com/apppasswords>
+   Pick "Mail", name it "HoneyBee Shop". Google shows 16 characters.
+3. Store it — with the spaces removed:
+
+```
+dotnet user-secrets set "Smtp:Password" "your16charapppassword" --project src/HoneyBee.Web
+```
+
+Restart the app, then check **Admin → Email** and press *Send a test email*.
+That page reports the real SMTP error if one comes back, which is the quickest
+way to tell an auth problem from a blocked port.
+
+In production the password is the `Smtp__Password` environment variable.
+
+Sending happens on a background task, so a slow mail server never delays a
+customer at checkout. The flip side is that a failure is invisible on the
+storefront — it goes to the log, and the Email screen is how you check.
+
+With no password set, email is simply off: orders are still saved and still
+open in WhatsApp.
+
 ## Layout
 
 ```
