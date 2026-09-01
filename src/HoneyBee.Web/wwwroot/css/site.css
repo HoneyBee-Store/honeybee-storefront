@@ -145,7 +145,17 @@ h1, h2, h3 { letter-spacing: -.02em; }
   color: #fff;
 }
 .hero-honey-media { position: absolute; inset: 0; z-index: 0; }
-.hero-honey-media img { width: 100%; height: 100%; object-fit: cover; }
+
+/* The banner artwork is a 4:5 poster with its own Arabic headline across the
+   top. In a wide hero it crops to a narrow band, so aim that band at the jars:
+   showing the poster's headline as well would put two competing titles on
+   screen at once. */
+.hero-honey-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 58%;
+}
 .hero-honey-overlay {
   position: absolute;
   inset: 0;
