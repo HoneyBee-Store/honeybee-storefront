@@ -320,4 +320,64 @@
   <data name="View details" xml:space="preserve">
     <value>عرض التفاصيل</value>
   </data>
+  <data name="MetaDescription" xml:space="preserve">
+    <value>عسل طبيعي نقي ومنتجات النحل من مناحلنا في الأردن — سدر وجبلي ومرار وكينا، وشمع العسل وحبوب اللقاح والعكبر وغذاء ملكات النحل.</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>القائمة</value>
+  </data>
+  <data name="Shop now" xml:space="preserve">
+    <value>تسوّق الآن</value>
+  </data>
+  <data name="Our harvest" xml:space="preserve">
+    <value>من حصادنا</value>
+  </data>
+  <data name="Your selection" xml:space="preserve">
+    <value>اختيارك</value>
+  </data>
+  <data name="Almost done" xml:space="preserve">
+    <value>خطوة أخيرة</value>
+  </data>
+  <data name="Welcome back" xml:space="preserve">
+    <value>أهلًا بعودتك</value>
+  </data>
+  <data name="New here" xml:space="preserve">
+    <value>حساب جديد</value>
+  </data>
+  <data name="Explore" xml:space="preserve">
+    <value>تصفّح</value>
+  </data>
+  <data name="Collect in person" xml:space="preserve">
+    <value>استلام مباشر</value>
+  </data>
+  <data name="ValueNatural" xml:space="preserve">
+    <value>بلا سكر ولا إضافات ولا ألوان — عسل كما أنتجته النحلة.</value>
+  </data>
+  <data name="ValueRaw" xml:space="preserve">
+    <value>لا يُبستر ولا يُفلتر، فيحتفظ بحبوب اللقاح وخصائصه الطبيعية.</value>
+  </data>
+  <data name="ValueFamily" xml:space="preserve">
+    <value>نربّي نحلنا ونقطف العسل بأنفسنا، موسمًا بموسم.</value>
+  </data>
+  <data name="ValuePickup" xml:space="preserve">
+    <value>استلم طلبك من الزرقاء أو عمّان في الوقت الذي يناسبك.</value>
+  </data>
+  <data name="StoryHeading" xml:space="preserve">
+    <value>من خلايانا إلى مائدتك</value>
+  </data>
+  <data name="StoryImageAlt" xml:space="preserve">
+    <value>قطع من شمع العسل الطبيعي</value>
+  </data>
+  <data name="Choose size and quantity" xml:space="preserve">
+    <value>اختر الحجم والكمية</value>
+  </data>
+  <data name="Zarqa" xml:space="preserve">
+    <value>الزرقاء</value>
+  </data>
+  <data name="Amman" xml:space="preserve">
+    <value>عمّان</value>
+  </data>
+  <data name="FooterBlurb" xml:space="preserve">
+    <value>عسل طبيعي ومنتجات نحل من مناحلنا الخاصة في الأردن. اطلب عبر الموقع أو تواصل معنا مباشرة، واستلم من الزرقاء أو عمّان.</value>
+  </data>
 </root>

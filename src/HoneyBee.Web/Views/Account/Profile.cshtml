@@ -3,35 +3,35 @@
     ViewData["Title"] = L["My account"].Value;
 }
 
-<section class="section-pad">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="auth-card">
-                    <h1 class="section-title">@L["My account"]</h1>
+<section class="section section--cream">
+    <div class="container-hb narrow">
+        <div class="panel">
+            <header class="section-head" style="margin-bottom:1.75rem">
+                <p class="eyebrow">@L["Account"]</p>
+                <h1 class="section-title">@L["My account"]</h1>
+            </header>
 
-                    <dl class="profile-list mt-4">
-                        <dt>@L["Full name"]</dt>
-                        <dd>@Model.FullName</dd>
+            <dl class="dl-clean">
+                <dt>@L["Full name"]</dt>
+                <dd>@Model.FullName</dd>
 
-                        <dt>@L["Phone number"]</dt>
-                        <dd dir="ltr">@Model.PhoneNumber</dd>
+                <dt>@L["Phone number"]</dt>
+                <dd class="u-ltr">@Model.PhoneNumber</dd>
 
-                        <dt>@L["Email"]</dt>
-                        <dd dir="ltr">@Model.Email</dd>
-                    </dl>
+                <dt>@L["Email"]</dt>
+                <dd class="u-ltr">@Model.Email</dd>
+            </dl>
 
-                    @* No order history yet — the cart arrives in phase 3. Saying so
-                       is better than an empty panel the customer can't explain. *@
-                    <div class="alert alert-light border small" role="status">
-                        @L["OrdersComingSoon"]
-                    </div>
-
-                    <form asp-action="Logout" method="post">
-                        <button type="submit" class="btn btn-outline-honey w-100">@L["Sign out"]</button>
-                    </form>
-                </div>
+            @* No order history yet — saying so beats an empty panel the
+               customer cannot explain. *@
+            <div class="notice notice-warn" style="margin-block:1.25rem">
+                <i class="bi bi-clock-history" aria-hidden="true"></i>
+                <span>@L["OrdersComingSoon"]</span>
             </div>
+
+            <form asp-action="Logout" method="post">
+                <button type="submit" class="btn-hb btn-outline btn-block">@L["Sign out"]</button>
+            </form>
         </div>
     </div>
 </section>

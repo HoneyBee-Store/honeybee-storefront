@@ -3,44 +3,43 @@
     ViewData["Title"] = L["Sign in"].Value;
 }
 
-<section class="section-pad">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-5">
-                <div class="auth-card">
-                    <h1 class="section-title">@L["Sign in"]</h1>
+<section class="section section--cream">
+    <div class="container-hb narrow">
+        <div class="panel">
+            <header class="section-head" style="margin-bottom:1.75rem">
+                <p class="eyebrow">@L["Welcome back"]</p>
+                <h1 class="section-title">@L["Sign in"]</h1>
+            </header>
 
-                    <form asp-action="Login" method="post" class="mt-4">
-                        <input type="hidden" asp-for="ReturnUrl" />
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+            <form asp-action="Login" method="post" class="stack">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div asp-validation-summary="ModelOnly" class="notice notice-bad" role="alert"></div>
 
-                        <div class="mb-3">
-                            <label asp-for="Phone" class="form-label">@L["Phone number"]</label>
-                            <input asp-for="Phone" class="form-control" type="tel" dir="ltr"
-                                   autocomplete="tel" placeholder="0790000000" autofocus />
-                            <span asp-validation-for="Phone" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">@L["Password"]</label>
-                            <input asp-for="Password" class="form-control" autocomplete="current-password" />
-                            <span asp-validation-for="Password" class="text-danger small"></span>
-                        </div>
-
-                        <div class="form-check mb-4">
-                            <input asp-for="RememberMe" class="form-check-input" />
-                            <label asp-for="RememberMe" class="form-check-label">@L["Keep me signed in"]</label>
-                        </div>
-
-                        <button type="submit" class="btn btn-honey w-100">@L["Sign in"]</button>
-                    </form>
-
-                    <p class="text-center text-body-secondary small mt-4 mb-0">
-                        @L["No account yet?"]
-                        <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">@L["Create one"]</a>
-                    </p>
+                <div>
+                    <label class="field-label" asp-for="Phone">@L["Phone number"]</label>
+                    <input class="field u-ltr" asp-for="Phone" type="tel" autocomplete="tel"
+                           placeholder="0790000000" autofocus />
+                    <span class="field-error" asp-validation-for="Phone"></span>
                 </div>
-            </div>
+
+                <div>
+                    <label class="field-label" asp-for="Password">@L["Password"]</label>
+                    <input class="field" asp-for="Password" autocomplete="current-password" />
+                    <span class="field-error" asp-validation-for="Password"></span>
+                </div>
+
+                <label style="display:flex;align-items:center;gap:.5rem;font-size:.92rem">
+                    <input asp-for="RememberMe" />
+                    <span>@L["Keep me signed in"]</span>
+                </label>
+
+                <button type="submit" class="btn-hb btn-gold btn-block">@L["Sign in"]</button>
+            </form>
+
+            <p class="u-center field-help" style="margin-block-start:1.5rem;margin-bottom:0">
+                @L["No account yet?"]
+                <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">@L["Create one"]</a>
+            </p>
         </div>
     </div>
 </section>

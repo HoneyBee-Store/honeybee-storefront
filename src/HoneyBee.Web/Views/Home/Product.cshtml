@@ -5,58 +5,63 @@
     var primary = Model.Images.FirstOrDefault(i => i.IsPrimary) ?? Model.Images.FirstOrDefault();
 }
 
-<section class="section-pad">
-    <div class="container">
-        <p class="mb-4">
-            <a asp-action="Index" class="back-link">
-                <i class="bi bi-arrow-@(LocalizedText.IsArabic ? "right" : "left") me-1" aria-hidden="true"></i>@L["Back to products"]
-            </a>
-        </p>
+<section class="section section--cream">
+    <div class="container-hb">
+        <a class="crumb" asp-action="Index">
+            <i class="bi bi-arrow-@(LocalizedText.IsArabic ? "right" : "left")" aria-hidden="true"></i>
+            @L["Back to products"]
+        </a>
 
-        <div class="row g-5">
-            <div class="col-lg-6">
+        <div class="detail-grid">
+            <div>
                 @if (primary is not null)
                 {
-                    <img src="~/@primary.Path" alt="@primary.Alt()" class="product-detail-img"
-                         style="object-position: center @(primary.FocalY)%;" />
+                    <img class="detail-img" src="~/@primary.Path" alt="@primary.Alt()" />
                 }
             </div>
 
-            <div class="col-lg-6">
+            <div>
                 <h1 class="section-title">@Model.Name()</h1>
 
-                <div class="product-meta mb-3">
+                <p style="margin-block-start:1.25rem">
                     @if (Model.InStock)
                     {
-                        <span class="badge status-in">@L["In Stock"]</span>
+                        <span class="pill pill-in">
+                            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>@L["In Stock"]
+                        </span>
                     }
                     else
                     {
-                        <span class="badge status-out">@L["Out of Stock"]</span>
+                        <span class="pill pill-out">
+                            <i class="bi bi-slash-circle" aria-hidden="true"></i>@L["Out of Stock"]
+                        </span>
                     }
-                    <span class="price-note">
-                        @if (Model.Price is null)
+                </p>
+
+                @if (Model.Price is null)
+                {
+                    <p class="price price--request">@L["Price on request"]</p>
+                }
+                else
+                {
+                    <p class="price" style="font-size:var(--t-3)">
+                        <span>@($"{Model.Price:0.###}") @L["JOD"]</span>
+                        @if (!string.IsNullOrWhiteSpace(Model.Unit()))
                         {
-                            @L["Price on request"]
+                            <small>/ @Model.Unit()</small>
                         }
-                        else
-                        {
-                            <span class="price-amount">@($"{Model.Price:0.###}") @L["JOD"]</span>
-                            @if (!string.IsNullOrWhiteSpace(Model.Unit()))
-                            {
-                                <text> / @Model.Unit()</text>
-                            }
-                        }
-                    </span>
-                </div>
+                    </p>
+                }
 
                 @if (!string.IsNullOrWhiteSpace(Model.Description()))
                 {
-                    <p class="lead-sm">@Model.Description()</p>
+                    <p class="section-sub" style="margin-block-start:0">@Model.Description()</p>
                 }
 
-                <div class="add-wrap mt-3">
+                <div class="panel" style="margin-block-start:1.75rem">
+                    <span class="field-label">@L["Choose size and quantity"]</span>
                     <partial name="_AddToCart" model="Model" />
+                    <p class="field-help" style="margin-block-start:.85rem">@L["CartNote"]</p>
                 </div>
             </div>
         </div>

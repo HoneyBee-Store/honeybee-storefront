@@ -4,78 +4,72 @@
     var whatsApp = ViewData["WhatsAppLink"] as string;
 }
 
-<section class="section-pad">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <div class="auth-card text-center">
-                    <p class="fs-1 mb-2" aria-hidden="true">✅</p>
-                    <h1 class="h4 mb-2">@L["Request sent"]</h1>
-                    <p class="text-body-secondary mb-1">@L["ConfirmationBody"]</p>
-                    <p class="order-number mb-4">@Model.OrderNumber</p>
+<section class="section section--cream">
+    <div class="container-hb narrow-md">
+        <div class="panel u-center">
+            <i class="bi bi-check-circle-fill" style="font-size:2.75rem;color:var(--gold)" aria-hidden="true"></i>
+            <h1 class="section-title" style="margin-block-start:.75rem">@L["Request sent"]</h1>
+            <p class="section-sub">@L["ConfirmationBody"]</p>
+            <p class="order-ref">@Model.OrderNumber</p>
 
-                    @* The order is already saved. This button is how it reaches the
-                       shop's phone — wa.me opens WhatsApp with the details filled in;
-                       the customer taps send. Nothing is sent automatically. *@
-                    @if (!string.IsNullOrEmpty(whatsApp))
-                    {
-                        <a class="btn btn-whatsapp btn-lg w-100 mb-3" href="@whatsApp"
-                           target="_blank" rel="noopener">
-                            <i class="bi bi-whatsapp me-2" aria-hidden="true"></i>@L["Send on WhatsApp"]
-                        </a>
-                        <p class="small text-body-secondary">@L["WhatsAppNote"]</p>
-                    }
-
-                    <hr class="my-4" />
-
-                    <div class="text-start">
-                        <h2 class="h6 text-uppercase text-body-secondary mb-3">@L["Summary"]</h2>
-
-                        <dl class="profile-list">
-                            <dt>@L["Full name"]</dt>
-                            <dd>@Model.CustomerName</dd>
-
-                            <dt>@L["Phone number"]</dt>
-                            <dd dir="ltr">@Model.Phone</dd>
-
-                            <dt>@L["Pickup location"]</dt>
-                            <dd>@(Model.PickupLocation?.Name() ?? "—")</dd>
-                        </dl>
-
-                        <ul class="list-unstyled">
-                            @foreach (var item in Model.Items)
-                            {
-                                <li class="d-flex justify-content-between gap-2 mb-2">
-                                    <span>
-                                        @item.NameSnapshot
-                                        <span class="text-body-secondary small">
-                                            — @(item.SizeKg == 1m ? "1" : "½") @L["kg"] × @item.Quantity
-                                        </span>
-                                    </span>
-                                    <span class="text-nowrap">
-                                        @if (item.LineTotal is not null)
-                                        {
-                                            @($"{item.LineTotal:0.###}")
-                                        }
-                                    </span>
-                                </li>
-                            }
-                        </ul>
-
-                        @if (Model.Total is not null)
-                        {
-                            <div class="d-flex justify-content-between border-top pt-2">
-                                <strong>@L["Total"]</strong>
-                                <strong>@($"{Model.Total:0.###}") @L["JOD"]</strong>
-                            </div>
-                        }
-                    </div>
-
-                    <a class="btn btn-outline-honey mt-4" asp-controller="Home" asp-action="Index">
-                        @L["Back to the shop"]
-                    </a>
-                </div>
-            </div>
+            @* The order is already saved. This button is how it reaches the
+               shop's phone — wa.me opens WhatsApp with the details filled in.
+               Nothing is sent automatically. *@
+            @if (!string.IsNullOrEmpty(whatsApp))
+            {
+                <a class="btn-hb btn-gold btn-block" href="@whatsApp" target="_blank" rel="noopener"
+                   style="margin-block:1.5rem .75rem">
+                    <i class="bi bi-whatsapp" aria-hidden="true"></i>@L["Send on WhatsApp"]
+                </a>
+                <p class="field-help">@L["WhatsAppNote"]</p>
+            }
         </div>
+
+        <div class="panel" style="margin-block-start:1.5rem">
+            <h2 style="font-size:var(--t-1);margin-bottom:1.25rem">@L["Summary"]</h2>
+
+            <dl class="dl-clean">
+                <dt>@L["Full name"]</dt>
+                <dd>@Model.CustomerName</dd>
+
+                <dt>@L["Phone number"]</dt>
+                <dd class="u-ltr">@Model.Phone</dd>
+
+                <dt>@L["Pickup location"]</dt>
+                <dd>@(Model.PickupLocation?.Name() ?? "—")</dd>
+            </dl>
+
+            <div class="stack-sm" style="border-block-start:1px solid var(--rule);padding-block-start:1rem">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="summary-row" style="padding-block:.15rem">
+                        <span>
+                            @item.NameSnapshot
+                            <span class="cart-line-meta">
+                                — @(item.SizeKg == 1m ? "1" : "½") @L["kg"] × @item.Quantity
+                            </span>
+                        </span>
+                        <span class="u-nowrap">
+                            @if (item.LineTotal is not null)
+                            {
+                                @($"{item.LineTotal:0.###}")
+                            }
+                        </span>
+                    </div>
+                }
+            </div>
+
+            @if (Model.Total is not null)
+            {
+                <div class="summary-row summary-total">
+                    <span>@L["Total"]</span>
+                    <span>@($"{Model.Total:0.###}") @L["JOD"]</span>
+                </div>
+            }
+        </div>
+
+        <p class="u-center" style="margin-block-start:1.5rem">
+            <a class="btn-hb btn-outline" asp-controller="Home" asp-action="Index">@L["Back to the shop"]</a>
+        </p>
     </div>
 </section>

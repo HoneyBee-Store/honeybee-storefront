@@ -1,0 +1,50 @@
+@model Product
+@inject IStringLocalizer<SharedResource> L
+@{
+    var img = Model.Images.FirstOrDefault();
+}
+
+<article class="product-card reveal">
+    <a class="product-media" asp-controller="Home" asp-action="Product" asp-route-slug="@Model.Slug">
+        @* The only badge shown is one backed by real data. "Best seller" and
+           "New" would be claims the shop cannot yet support. *@
+        @if (!Model.InStock)
+        {
+            <span class="badge-hb badge-out">@L["Out of Stock"]</span>
+        }
+        @if (img is not null)
+        {
+            <img src="~/@img.Path" alt="@img.Alt()" loading="lazy" decoding="async" />
+        }
+    </a>
+
+    <div class="product-body">
+        <h3 class="product-name">
+            <a asp-controller="Home" asp-action="Product" asp-route-slug="@Model.Slug">@Model.Name()</a>
+        </h3>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Description()))
+        {
+            <p class="product-desc">@Model.Description()</p>
+        }
+
+        <div class="product-foot">
+            @if (Model.Price is null)
+            {
+                <p class="price price--request">@L["Price on request"]</p>
+            }
+            else
+            {
+                <p class="price">
+                    <span>@($"{Model.Price:0.###}") @L["JOD"]</span>
+                    @if (!string.IsNullOrWhiteSpace(Model.Unit()))
+                    {
+                        <small>/ @Model.Unit()</small>
+                    }
+                </p>
+            }
+
+            <partial name="_AddToCart" model="Model" />
+        </div>
+    </div>
+</article>

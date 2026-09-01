@@ -2,26 +2,30 @@
 @inject IStringLocalizer<SharedResource> L
 @{
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var sizeId = $"size-{Model.Id}";
+    var qtyId  = $"qty-{Model.Id}";
 }
 
 @if (Model.InStock)
 {
-    <form asp-controller="Cart" asp-action="Add" method="post" class="add-form">
+    <form asp-controller="Cart" asp-action="Add" method="post">
         <input type="hidden" name="productId" value="@Model.Id" />
         <input type="hidden" name="returnUrl" value="@returnUrl" />
 
         <div class="add-row">
             @* Honey is priced per kilo and sold in these two jars, so the size
-               is what turns the rate into a price. *@
-            <select name="sizeKg" class="form-select form-select-sm" aria-label="@L["Size"]">
+               is what turns a rate into a price. *@
+            <label class="visually-hidden" for="@sizeId">@L["Size"]</label>
+            <select class="form-select-hb" name="sizeKg" id="@sizeId">
                 <option value="1">1 @L["kg"]</option>
                 <option value="0.5">½ @L["kg"]</option>
             </select>
 
-            <input type="number" name="quantity" value="1" min="1" max="99"
-                   class="form-control form-control-sm" aria-label="@L["Quantity"]" />
+            <label class="visually-hidden" for="@qtyId">@L["Quantity"]</label>
+            <input class="form-qty" type="number" name="quantity" id="@qtyId"
+                   value="1" min="1" max="99" />
 
-            <button type="submit" class="btn btn-sm btn-honey">
+            <button type="submit" class="btn-hb btn-gold btn-sm-hb u-nowrap">
                 <i class="bi bi-plus-lg" aria-hidden="true"></i>
                 <span>@L["Add"]</span>
             </button>
@@ -30,5 +34,8 @@
 }
 else
 {
-    <p class="small text-body-secondary mb-0">@L["Currently unavailable"]</p>
+    <p class="stock-note">
+        <i class="bi bi-slash-circle" aria-hidden="true"></i>
+        @L["Currently unavailable"]
+    </p>
 }

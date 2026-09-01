@@ -3,90 +3,96 @@
     ViewData["Title"] = L["Confirm your request"].Value;
 }
 
-<section class="section-pad">
-    <div class="container">
-        <h1 class="section-title">@L["Confirm your request"]</h1>
+<section class="section section--cream">
+    <div class="container-hb">
+        <header class="section-head">
+            <p class="eyebrow">@L["Almost done"]</p>
+            <h1 class="section-title">@L["Confirm your request"]</h1>
+        </header>
 
         <form asp-action="Checkout" method="post">
-            <div class="row g-4 mt-1">
-                <div class="col-lg-7">
-                    <div class="auth-card">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+            <div class="cart-layout">
+                <div class="panel">
+                    <div asp-validation-summary="ModelOnly" class="notice notice-bad" role="alert"
+                         style="margin-bottom:1.25rem"></div>
 
-                        <div class="mb-3">
-                            <label asp-for="CustomerName" class="form-label">@L["Full name"]</label>
-                            <input asp-for="CustomerName" class="form-control" autocomplete="name" />
-                            <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                    <div class="stack">
+                        <div>
+                            <label class="field-label" asp-for="CustomerName">@L["Full name"]</label>
+                            <input class="field" asp-for="CustomerName" autocomplete="name" />
+                            <span class="field-error" asp-validation-for="CustomerName"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Phone" class="form-label">@L["Phone number"]</label>
-                            <input asp-for="Phone" class="form-control" type="tel" dir="ltr" autocomplete="tel" />
-                            <div class="form-text">@L["CheckoutPhoneHelp"]</div>
-                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        <div>
+                            <label class="field-label" asp-for="Phone">@L["Phone number"]</label>
+                            <input class="field u-ltr" asp-for="Phone" type="tel" autocomplete="tel"
+                                   placeholder="0790000000" />
+                            <span class="field-help">@L["CheckoutPhoneHelp"]</span>
+                            <span class="field-error" asp-validation-for="Phone"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="PickupLocationId" class="form-label">@L["Pickup location"]</label>
-                            <select asp-for="PickupLocationId" class="form-select">
+                        <div>
+                            <label class="field-label" asp-for="PickupLocationId">@L["Pickup location"]</label>
+                            <select class="field" asp-for="PickupLocationId">
                                 <option value="">@L["Choose a location"]</option>
                                 @foreach (var loc in Model.PickupLocations)
                                 {
                                     <option value="@loc.Id">@loc.Name()</option>
                                 }
                             </select>
-                            <span asp-validation-for="PickupLocationId" class="text-danger small"></span>
+                            <span class="field-error" asp-validation-for="PickupLocationId"></span>
                         </div>
 
-                        <div class="mb-2">
-                            <label asp-for="CustomerNotes" class="form-label">@L["Notes (optional)"]</label>
-                            <textarea asp-for="CustomerNotes" class="form-control" rows="3"></textarea>
+                        <div>
+                            <label class="field-label" asp-for="CustomerNotes">@L["Notes (optional)"]</label>
+                            <textarea class="field" asp-for="CustomerNotes" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-5">
-                    <div class="auth-card">
-                        <h2 class="h5 mb-3">@L["Summary"]</h2>
+                <aside class="panel">
+                    <h2 style="font-size:var(--t-1);margin-bottom:1rem">@L["Summary"]</h2>
 
-                        <ul class="list-unstyled mb-3">
-                            @foreach (var line in Model.Cart.Lines)
+                    <div class="stack-sm" style="margin-bottom:1rem">
+                        @foreach (var line in Model.Cart.Lines)
+                        {
+                            <div class="summary-row" style="padding-block:.15rem">
+                                <span>
+                                    @line.Product.Name()
+                                    <span class="cart-line-meta">
+                                        — @(line.SizeKg == 1m ? "1" : "½") @L["kg"] × @line.Quantity
+                                    </span>
+                                </span>
+                                <span class="u-nowrap">
+                                    @if (line.LineTotal is not null)
+                                    {
+                                        @($"{line.LineTotal:0.###}")
+                                    }
+                                </span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="summary-row summary-total">
+                        <span>@L["Total"]</span>
+                        <span>
+                            @if (Model.Cart.Total is null)
                             {
-                                <li class="d-flex justify-content-between gap-2 mb-2">
-                                    <span>
-                                        @line.Product.Name()
-                                        <span class="text-body-secondary small">
-                                            — @(line.SizeKg == 1m ? "1" : "½") @L["kg"] × @line.Quantity
-                                        </span>
-                                    </span>
-                                    <span class="text-nowrap">
-                                        @if (line.LineTotal is not null)
-                                        {
-                                            @($"{line.LineTotal:0.###}")
-                                        }
-                                    </span>
-                                </li>
+                                @L["Price on request"]
                             }
-                        </ul>
-
-                        <div class="d-flex justify-content-between border-top pt-2 mb-4">
-                            <strong>@L["Total"]</strong>
-                            <strong>
-                                @if (Model.Cart.Total is null)
-                                {
-                                    @L["Price on request"]
-                                }
-                                else
-                                {
-                                    @($"{Model.Cart.Total:0.###}") <text> </text> @L["JOD"]
-                                }
-                            </strong>
-                        </div>
-
-                        <button type="submit" class="btn btn-honey w-100">@L["Send request"]</button>
-                        <p class="small text-body-secondary mt-3 mb-0">@L["CheckoutNote"]</p>
+                            else
+                            {
+                                @($"{Model.Cart.Total:0.###}") <text> </text> @L["JOD"]
+                            }
+                        </span>
                     </div>
-                </div>
+
+                    <button type="submit" class="btn-hb btn-gold btn-block" style="margin-block-start:1.25rem">
+                        <i class="bi bi-whatsapp" aria-hidden="true"></i>@L["Send request"]
+                    </button>
+
+                    <p class="field-help" style="margin-block-start:1rem">@L["CheckoutNote"]</p>
+                </aside>
             </div>
         </form>
     </div>

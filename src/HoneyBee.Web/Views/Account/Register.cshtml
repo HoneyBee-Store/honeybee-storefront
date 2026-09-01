@@ -3,61 +3,59 @@
     ViewData["Title"] = L["Create an account"].Value;
 }
 
-<section class="section-pad">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="auth-card">
-                    <h1 class="section-title">@L["Create an account"]</h1>
-                    <p class="text-body-secondary">@L["AccountIntro"]</p>
+<section class="section section--cream">
+    <div class="container-hb narrow">
+        <div class="panel">
+            <header class="section-head" style="margin-bottom:1.75rem">
+                <p class="eyebrow">@L["New here"]</p>
+                <h1 class="section-title">@L["Create an account"]</h1>
+                <p class="section-sub" style="font-size:1rem">@L["AccountIntro"]</p>
+            </header>
 
-                    <form asp-action="Register" method="post" class="mt-4">
-                        <input type="hidden" asp-for="ReturnUrl" />
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+            <form asp-action="Register" method="post" class="stack">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div asp-validation-summary="ModelOnly" class="notice notice-bad" role="alert"></div>
 
-                        <div class="mb-3">
-                            <label asp-for="FullName" class="form-label">@L["Full name"]</label>
-                            <input asp-for="FullName" class="form-control" autocomplete="name" autofocus />
-                            <span asp-validation-for="FullName" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Phone" class="form-label">@L["Phone number"]</label>
-                            <input asp-for="Phone" class="form-control" type="tel" dir="ltr"
-                                   autocomplete="tel" placeholder="0790000000" />
-                            <div class="form-text">@L["PhoneHelp"]</div>
-                            <span asp-validation-for="Phone" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label">@L["Email"]</label>
-                            <input asp-for="Email" class="form-control" type="email" dir="ltr"
-                                   autocomplete="email" />
-                            <span asp-validation-for="Email" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">@L["Password"]</label>
-                            <input asp-for="Password" class="form-control" autocomplete="new-password" />
-                            <div class="form-text">@L["PasswordHelp"]</div>
-                            <span asp-validation-for="Password" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="ConfirmPassword" class="form-label">@L["Confirm password"]</label>
-                            <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
-                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                        </div>
-
-                        <button type="submit" class="btn btn-honey w-100">@L["Create account"]</button>
-                    </form>
-
-                    <p class="text-center text-body-secondary small mt-4 mb-0">
-                        @L["Already have an account?"]
-                        <a asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">@L["Sign in"]</a>
-                    </p>
+                <div>
+                    <label class="field-label" asp-for="FullName">@L["Full name"]</label>
+                    <input class="field" asp-for="FullName" autocomplete="name" autofocus />
+                    <span class="field-error" asp-validation-for="FullName"></span>
                 </div>
-            </div>
+
+                <div>
+                    <label class="field-label" asp-for="Phone">@L["Phone number"]</label>
+                    <input class="field u-ltr" asp-for="Phone" type="tel" autocomplete="tel"
+                           placeholder="0790000000" />
+                    <span class="field-help">@L["PhoneHelp"]</span>
+                    <span class="field-error" asp-validation-for="Phone"></span>
+                </div>
+
+                <div>
+                    <label class="field-label" asp-for="Email">@L["Email"]</label>
+                    <input class="field u-ltr" asp-for="Email" type="email" autocomplete="email" />
+                    <span class="field-error" asp-validation-for="Email"></span>
+                </div>
+
+                <div>
+                    <label class="field-label" asp-for="Password">@L["Password"]</label>
+                    <input class="field" asp-for="Password" autocomplete="new-password" />
+                    <span class="field-help">@L["PasswordHelp"]</span>
+                    <span class="field-error" asp-validation-for="Password"></span>
+                </div>
+
+                <div>
+                    <label class="field-label" asp-for="ConfirmPassword">@L["Confirm password"]</label>
+                    <input class="field" asp-for="ConfirmPassword" autocomplete="new-password" />
+                    <span class="field-error" asp-validation-for="ConfirmPassword"></span>
+                </div>
+
+                <button type="submit" class="btn-hb btn-gold btn-block">@L["Create account"]</button>
+            </form>
+
+            <p class="u-center field-help" style="margin-block-start:1.5rem;margin-bottom:0">
+                @L["Already have an account?"]
+                <a asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">@L["Sign in"]</a>
+            </p>
         </div>
     </div>
 </section>
