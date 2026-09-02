@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -13,42 +14,101 @@ public class ShopSettings
     public string OrderEmail { get; set; } = "khaledehmide3@gmail.com";
 }
 
-public class SmtpSettings
+/// <summary>
+/// Everything needed to send mail, whichever way it goes out.
+///
+/// Named for the job rather than for SMTP: since the office network blocks
+/// port 587, the same settings also drive the HTTPS transport.
+/// </summary>
+public class MailSettings
 {
+    private string? _password;
+    private string? _apiKey;
+
+    /// <summary>How the message leaves the building.</summary>
+    public MailProvider Provider { get; set; } = MailProvider.Smtp;
+
+    // ---- SMTP ----
     public string? Host { get; set; }
     public int Port { get; set; } = 587;
     public string? User { get; set; }
-    public string? Password { get; set; }
+
+    /// <summary>
+    /// Whitespace is stripped on the way in. Google shows app passwords in four
+    /// groups of four, and they are almost always pasted that way — the spaces
+    /// then travel into config and Gmail rejects the login with no clue why.
+    /// Normalising here covers every source: appsettings, user secrets, the
+    /// environment variable and the admin form.
+    /// </summary>
+    public string? Password
+    {
+        get => _password;
+        set => _password = Clean(value);
+    }
+
+    // ---- HTTP API ----
+
+    /// <summary>Brevo API key. Cleaned like the password — these get pasted
+    /// with stray whitespace just as often.</summary>
+    public string? ApiKey
+    {
+        get => _apiKey;
+        set => _apiKey = Clean(value);
+    }
+
+    // ---- shared ----
+
+    /// <summary>The address messages are sent from. With Brevo this must be a
+    /// sender verified in the account.</summary>
     public string? From { get; set; }
 
     /// <summary>
-    /// How long to wait on the mail server before giving up. Without this,
-    /// System.Net.Mail waits 100 seconds by default, so an unreachable server
-    /// would hold a customer on the checkout button for well over a minute.
+    /// How long to wait before giving up. Without this, System.Net.Mail waits
+    /// 100 seconds by default, so an unreachable server would hold a customer
+    /// on the checkout button for well over a minute.
     /// </summary>
     public int TimeoutSeconds { get; set; } = 15;
 
-    public bool IsConfigured =>
-        !string.IsNullOrWhiteSpace(Host)
-        && !string.IsNullOrWhiteSpace(From)
+    public bool IsConfigured => Provider switch
+    {
         // A server that wants a username wants the password too. Without this
         // the admin screen would report "on" while every send failed on auth,
         // which is the most confusing state to leave the shop in.
-        && (string.IsNullOrWhiteSpace(User) || !string.IsNullOrWhiteSpace(Password));
+        MailProvider.Smtp => !string.IsNullOrWhiteSpace(Host)
+                             && !string.IsNullOrWhiteSpace(From)
+                             && (string.IsNullOrWhiteSpace(User) || !string.IsNullOrWhiteSpace(Password)),
+
+        MailProvider.Brevo => !string.IsNullOrWhiteSpace(ApiKey)
+                              && !string.IsNullOrWhiteSpace(From),
+
+        _ => false
+    };
+
+    private static string? Clean(string? value) => value is null
+        ? null
+        : new string(value.Where(c => !char.IsWhiteSpace(c)).ToArray());
 }
 
 public class OrderNotifier
 {
-    private readonly SmtpSettings _smtp;
+    private readonly MailSettingsStore _mail;
     private readonly ShopSettings _shop;
+    private readonly IEnumerable<IMailTransport> _transports;
     private readonly ILogger<OrderNotifier> _log;
 
-    public OrderNotifier(SmtpSettings smtp, ShopSettings shop, ILogger<OrderNotifier> log)
+    public OrderNotifier(MailSettingsStore mail, ShopSettings shop,
+                         IEnumerable<IMailTransport> transports,
+                         ILogger<OrderNotifier> log)
     {
-        _smtp = smtp;
+        _mail = mail;
         _shop = shop;
+        _transports = transports;
         _log = log;
     }
+
+    private IMailTransport TransportFor(MailSettings settings) =>
+        _transports.FirstOrDefault(t => t.Provider == settings.Provider)
+        ?? throw new InvalidOperationException($"No transport for {settings.Provider}.");
 
     /// <summary>
     /// Plain-text summary of an order, used for the WhatsApp message and as the
@@ -207,17 +267,22 @@ public class OrderNotifier
     /// handed to the background. Checkout redirects to WhatsApp immediately,
     /// and a slow mail server can no longer delay it.
     /// </summary>
-    public void QueueOrderEmail(Order order)
+    public async Task QueueOrderEmailAsync(Order order, CancellationToken ct = default)
     {
-        if (!_smtp.IsConfigured)
+        // Resolved here, on the request thread: the store reads the database,
+        // whose context is disposed the moment this request ends.
+        var smtp = await _mail.GetAsync(ct);
+
+        if (!smtp.IsConfigured)
         {
             _log.LogInformation(
-                "SMTP not configured — order {OrderNumber} was not emailed. It is saved, " +
+                "Mail is not configured — order {OrderNumber} was not emailed. It is saved, " +
                 "and the customer still gets the WhatsApp message.",
                 order.OrderNumber);
             return;
         }
 
+        var to = _shop.OrderEmail;
         var subject = $"طلب جديد {order.OrderNumber} — {order.CustomerName}";
         var text = BuildSummary(order);
         var html = BuildEmailHtml(order);
@@ -227,7 +292,7 @@ public class OrderNotifier
         {
             try
             {
-                await SendAsync(_shop.OrderEmail, subject, text, html);
+                await TransportFor(smtp).SendAsync(smtp, to, subject, text, html);
                 _log.LogInformation("Emailed order {OrderNumber}.", reference);
             }
             catch (Exception ex)
@@ -237,7 +302,7 @@ public class OrderNotifier
                 _log.LogError(ex, "Could not email order {OrderNumber}. The order is still saved.",
                     reference);
             }
-        });
+        }, CancellationToken.None);
     }
 
     /// <summary>
@@ -246,37 +311,12 @@ public class OrderNotifier
     /// </summary>
     public async Task SendAsync(string to, string subject, string textBody, string? htmlBody = null)
     {
-        using var message = new MailMessage
-        {
-            From = new MailAddress(_smtp.From!, "HoneyBee Shop"),
-            Subject = subject,
-            Body = textBody,
-            BodyEncoding = Encoding.UTF8,
-            SubjectEncoding = Encoding.UTF8
-        };
-        message.To.Add(to);
-
-        // Both parts are attached: clients that block HTML still show the text.
-        if (!string.IsNullOrWhiteSpace(htmlBody))
-        {
-            message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(
-                htmlBody, Encoding.UTF8, MediaTypeNames.Text.Html));
-        }
-
-        using var client = new SmtpClient(_smtp.Host, _smtp.Port)
-        {
-            EnableSsl = true,
-            Timeout = _smtp.TimeoutSeconds * 1000,
-            Credentials = string.IsNullOrWhiteSpace(_smtp.User)
-                ? null
-                : new NetworkCredential(_smtp.User, _smtp.Password)
-        };
-
-        await client.SendMailAsync(message);
+        var settings = await _mail.GetAsync();
+        await TransportFor(settings).SendAsync(settings, to, subject, textBody, htmlBody);
     }
 
     /// <summary>True when the shop has working mail settings.</summary>
-    public bool IsConfigured => _smtp.IsConfigured;
+    public async Task<bool> IsConfiguredAsync() => (await _mail.GetAsync()).IsConfigured;
 
     /// <summary>Where a test message would go, for the admin screen.</summary>
     public string OrderEmail => _shop.OrderEmail;

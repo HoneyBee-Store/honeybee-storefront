@@ -23,50 +23,74 @@ public class AdminController : Controller
     private readonly SignInManager<AppUser> _signIn;
     private readonly IWebHostEnvironment _env;
     private readonly OrderNotifier _notifier;
+    private readonly MailSettingsStore _mail;
 
     public AdminController(AppDbContext db, SignInManager<AppUser> signIn,
-                           IWebHostEnvironment env, OrderNotifier notifier)
+                           IWebHostEnvironment env, OrderNotifier notifier,
+                           MailSettingsStore mail)
     {
         _db = db;
         _signIn = signIn;
         _env = env;
         _notifier = notifier;
+        _mail = mail;
     }
 
     // ---------- email ----------
 
     /// <summary>
-    /// Shows whether order emails are switched on, and lets the owner prove it
-    /// without placing a fake order. Sending is otherwise invisible — it runs in
-    /// the background and failures only reach the log.
+    /// Lets the owner set the mail server from the admin rather than the command
+    /// line — user-secrets only work in development, so on a deployed server
+    /// this is the only practical way to change them.
     /// </summary>
     [HttpGet]
-    public IActionResult Email() => View(new EmailSettingsViewModel
+    public async Task<IActionResult> Email()
+        => View(await BuildEmailViewModelAsync());
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Email(EmailSettingsViewModel model)
     {
-        IsConfigured = _notifier.IsConfigured,
-        SendsTo = _notifier.OrderEmail
-    });
+        if (!ModelState.IsValid)
+        {
+            return View(await BuildEmailViewModelAsync(model));
+        }
+
+        await _mail.SaveAsync(model.Provider, model.Host, model.Port, model.User,
+                              model.From, model.Password, model.ApiKey);
+
+        var saved = await BuildEmailViewModelAsync();
+        saved.Saved = true;
+        return View(saved);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ClearMailPassword()
+    {
+        await _mail.ClearSecretsAsync();
+
+        var model = await BuildEmailViewModelAsync();
+        model.Saved = true;
+        return View(nameof(Email), model);
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SendTestEmail()
     {
-        var model = new EmailSettingsViewModel
-        {
-            IsConfigured = _notifier.IsConfigured,
-            SendsTo = _notifier.OrderEmail
-        };
+        var model = await BuildEmailViewModelAsync();
 
-        if (!_notifier.IsConfigured)
+        if (!model.IsConfigured)
         {
-            model.Error = "No mail server is configured yet, so there is nothing to test.";
+            model.Error = "Fill in the settings and save them first — there is nothing to test yet.";
             return View(nameof(Email), model);
         }
 
         try
         {
             await _notifier.SendAsync(
-                _notifier.OrderEmail,
+                model.SendsTo,
                 "HoneyBee Shop — test email",
                 "This is a test from the admin panel. If you are reading it, order emails will arrive here.");
 
@@ -80,6 +104,29 @@ public class AdminController : Controller
         }
 
         return View(nameof(Email), model);
+    }
+
+    /// <summary>
+    /// Fills the form from the stored settings. The password is never sent to
+    /// the browser — only whether one is held.
+    /// </summary>
+    private async Task<EmailSettingsViewModel> BuildEmailViewModelAsync(
+        EmailSettingsViewModel? posted = null)
+    {
+        var smtp = await _mail.GetAsync();
+
+        return new EmailSettingsViewModel
+        {
+            Provider = posted?.Provider ?? smtp.Provider,
+            Host = posted?.Host ?? smtp.Host,
+            Port = posted?.Port ?? smtp.Port,
+            User = posted?.User ?? smtp.User,
+            From = posted?.From ?? smtp.From,
+            IsConfigured = smtp.IsConfigured,
+            HasStoredPassword = await _mail.HasStoredPasswordAsync(),
+            HasStoredApiKey = await _mail.HasStoredApiKeyAsync(),
+            SendsTo = _notifier.OrderEmail
+        };
     }
 
     // ---------- auth ----------

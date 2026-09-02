@@ -1,18 +1,33 @@
+@using HoneyBee.Web.Services
 @model EmailSettingsViewModel
 @{
     ViewData["Title"] = "Email";
     Layout = "_AdminLayout";
+    var usingBrevo = Model.Provider == MailProvider.Brevo;
 }
 
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="d-flex align-items-center gap-3 mb-4">
     <h1 class="h3 mb-0">Order emails</h1>
+    @if (Model.IsConfigured)
+    {
+        <span class="badge text-bg-success">On</span>
+    }
+    else
+    {
+        <span class="badge text-bg-secondary">Off</span>
+    }
 </div>
+
+@if (Model.Saved)
+{
+    <div class="alert alert-success">Settings saved. Send a test to confirm they work.</div>
+}
 
 @if (Model.Sent)
 {
     <div class="alert alert-success">
-        <strong>Sent.</strong> Check <span class="fw-semibold">@Model.SendsTo</span> — including the
-        spam folder the first time. If it arrived, real orders will arrive too.
+        <strong>Sent.</strong> Check <span class="fw-semibold">@Model.SendsTo</span> — including
+        the spam folder the first time. If it arrived, real orders will arrive too.
     </div>
 }
 
@@ -24,67 +39,201 @@
     </div>
 }
 
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="fs-5">Status</span>
-            @if (Model.IsConfigured)
-            {
-                <span class="badge text-bg-success">On</span>
-            }
-            else
-            {
-                <span class="badge text-bg-secondary">Off</span>
-            }
+@if (!Model.IsConfigured)
+{
+    <div class="alert alert-secondary">
+        Orders are <strong>not</strong> emailed yet. Nothing is lost: every order is
+        saved and still opens in WhatsApp.
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Email" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+                    <div class="mb-4">
+                        <label class="form-label" asp-for="Provider"></label>
+                        <select class="form-select" asp-for="Provider" id="providerSelect">
+                            <option value="@((int)MailProvider.Smtp)">Gmail / SMTP</option>
+                            <option value="@((int)MailProvider.Brevo)">Brevo (over HTTPS)</option>
+                        </select>
+                        <div class="form-text">
+                            Choose Brevo if SMTP times out — many office networks and some
+                            Azure tiers block outbound port 587, but never HTTPS.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="From"></label>
+                        <input class="form-control" asp-for="From" placeholder="you@gmail.com" autocomplete="off">
+                        <div class="form-text js-hint-smtp" hidden="@usingBrevo">Gmail requires this to match the username.</div>
+                        <div class="form-text js-hint-brevo" hidden="@(!usingBrevo)">Must be a sender you have verified in Brevo.</div>
+                        <span asp-validation-for="From" class="text-danger small"></span>
+                    </div>
+
+                    <fieldset class="js-fields-smtp border-top pt-3" hidden="@usingBrevo">
+                        <legend class="h6 text-uppercase text-muted">SMTP</legend>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Host"></label>
+                            <input class="form-control" asp-for="Host" placeholder="smtp.gmail.com" autocomplete="off">
+                            <span asp-validation-for="Host" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Port"></label>
+                            <input class="form-control" asp-for="Port" type="number" min="1" max="65535" style="max-width:10rem">
+                            <span asp-validation-for="Port" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="User"></label>
+                            <input class="form-control" asp-for="User" placeholder="you@gmail.com" autocomplete="off">
+                            <span asp-validation-for="User" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Password"></label>
+                            <input class="form-control" asp-for="Password" type="password"
+                                   autocomplete="new-password"
+                                   placeholder="@(Model.HasStoredPassword ? "•••••••••••••••• (unchanged)" : "16 characters from Google")">
+                            <div class="form-text">
+                                @if (Model.HasStoredPassword)
+                                {
+                                    <text>A password is stored. Leave blank to keep it.</text>
+                                }
+                                else
+                                {
+                                    <text>Spaces are ignored, so paste it as Google shows it.</text>
+                                }
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="js-fields-brevo border-top pt-3" hidden="@(!usingBrevo)">
+                        <legend class="h6 text-uppercase text-muted">Brevo</legend>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="ApiKey"></label>
+                            <input class="form-control" asp-for="ApiKey" type="password"
+                                   autocomplete="new-password"
+                                   placeholder="@(Model.HasStoredApiKey ? "•••••••••••••••• (unchanged)" : "xkeysib-…")">
+                            <div class="form-text">
+                                @if (Model.HasStoredApiKey)
+                                {
+                                    <text>A key is stored. Leave blank to keep it.</text>
+                                }
+                                else
+                                {
+                                    <text>From Brevo → SMTP &amp; API → API keys.</text>
+                                }
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="h6 text-uppercase text-muted mb-3">Test</h2>
+                <p class="small mb-3">
+                    Orders go to <strong>@Model.SendsTo</strong>. Sending happens in the
+                    background so a slow server never delays a customer at checkout —
+                    which also means a failure is invisible unless you test it.
+                </p>
+                <form asp-action="SendTestEmail" method="post" class="mb-0">
+                    <button type="submit" class="btn btn-outline-primary" @(Model.IsConfigured ? "" : "disabled")>
+                        Send a test email
+                    </button>
+                </form>
+
+                @if (Model.HasStoredPassword || Model.HasStoredApiKey)
+                {
+                    <hr>
+                    <form asp-action="ClearMailPassword" method="post" class="mb-0">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Forget the stored secrets
+                        </button>
+                        <div class="form-text">Switches email off until new ones are saved.</div>
+                    </form>
+                }
+            </div>
         </div>
 
-        @if (Model.IsConfigured)
-        {
-            <p class="mb-3">
-                Every order is emailed to <strong>@Model.SendsTo</strong>.
-                Sending happens in the background, so a slow mail server never delays
-                a customer at checkout — which also means a failure is invisible unless
-                you test it.
-            </p>
-            <form asp-action="SendTestEmail" method="post">
-                <button type="submit" class="btn btn-primary">Send a test email</button>
-            </form>
-        }
-        else
-        {
-            <p class="mb-2">
-                No mail server is configured, so orders are <strong>not</strong> emailed.
-                Nothing is lost: every order is saved and still opens in WhatsApp.
-            </p>
-            <p class="mb-0 text-muted">
-                To switch it on, set the <code>Smtp</code> settings, then restart the app.
-                The steps are in <code>README.md</code>.
-            </p>
-        }
+        <div class="card js-help-brevo" hidden="@(!usingBrevo)">
+            <div class="card-body">
+                <h2 class="h6 text-uppercase text-muted mb-3">Setting up Brevo</h2>
+                <ol class="small ps-3 mb-3">
+                    <li class="mb-1">
+                        Create a free account at
+                        <a href="https://app.brevo.com/account/register" target="_blank" rel="noopener">brevo.com</a>
+                        — 300 emails a day, no card, no domain needed.
+                    </li>
+                    <li class="mb-1">
+                        Verify <strong>@Model.SendsTo</strong> as a sender under
+                        <em>Senders, Domains &amp; Dedicated IPs</em>. Brevo emails you a
+                        confirmation link.
+                    </li>
+                    <li class="mb-1">
+                        Create an API key under <em>SMTP &amp; API → API keys</em>. It starts
+                        with <code>xkeysib-</code>.
+                    </li>
+                    <li>Paste it above, set <em>Send from</em> to the verified address, and save.</li>
+                </ol>
+                <p class="small mb-0 text-muted">
+                    This goes out over HTTPS, so the port 587 block does not apply.
+                </p>
+            </div>
+        </div>
+
+        <div class="card js-help-smtp" hidden="@usingBrevo">
+            <div class="card-body">
+                <h2 class="h6 text-uppercase text-muted mb-3">If a test fails</h2>
+                <dl class="row mb-0 small">
+                    <dt class="col-5">Timed out</dt>
+                    <dd class="col-7">
+                        The network is blocking port 587 — common on office wifi and on some
+                        Azure tiers. Switch to Brevo above.
+                    </dd>
+
+                    <dt class="col-5">5.7.0 / auth</dt>
+                    <dd class="col-7">Your normal Gmail password won't work — it must be an app password.</dd>
+
+                    <dt class="col-5">In spam</dt>
+                    <dd class="col-7">Expected for a new sender. Mark it "not spam" once.</dd>
+                </dl>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <h2 class="h6 text-uppercase text-muted mb-3">If a test fails</h2>
-        <dl class="row mb-0 small">
-            <dt class="col-sm-4">5.7.0 / auth required</dt>
-            <dd class="col-sm-8">
-                Gmail rejects your normal password. You need an <em>App password</em>,
-                which requires 2-Step Verification to be on.
-            </dd>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Show only the fields for the chosen provider. Server-side rendering
+        // decides the initial state, so the page is correct before this runs.
+        (function () {
+            var select = document.getElementById('providerSelect');
+            if (!select) return;
 
-            <dt class="col-sm-4">Timed out</dt>
-            <dd class="col-sm-8">
-                The network is blocking outbound port 587 — common on office wifi.
-                Try from another connection.
-            </dd>
+            function sync() {
+                var brevo = select.value === '@((int)MailProvider.Brevo)';
+                document.querySelectorAll('.js-fields-smtp, .js-hint-smtp, .js-help-smtp')
+                    .forEach(function (el) { el.hidden = brevo; });
+                document.querySelectorAll('.js-fields-brevo, .js-hint-brevo, .js-help-brevo')
+                    .forEach(function (el) { el.hidden = !brevo; });
+            }
 
-            <dt class="col-sm-4">Arrived in spam</dt>
-            <dd class="col-sm-8">
-                Expected for a new sender. Mark it "not spam" once and later
-                messages land in the inbox.
-            </dd>
-        </dl>
-    </div>
-</div>
+            select.addEventListener('change', sync);
+            sync();
+        })();
+    </script>
+}

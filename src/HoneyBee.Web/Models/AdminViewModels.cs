@@ -1,3 +1,4 @@
+using HoneyBee.Web.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace HoneyBee.Web.Models;
@@ -74,13 +75,45 @@ public class ProductEditViewModel
 }
 
 /// <summary>
-/// Backs the admin's email screen: whether sending is switched on, where it
-/// goes, and the outcome of a test send.
+/// Backs the admin's email screen. Secrets are write-only: accepted from the
+/// form but never sent back to the browser — the Has* flags are all the page
+/// needs to know.
 /// </summary>
 public class EmailSettingsViewModel
 {
+    [Display(Name = "How to send")]
+    public MailProvider Provider { get; set; } = MailProvider.Smtp;
+
+    [Display(Name = "Server")]
+    [MaxLength(200)]
+    public string? Host { get; set; }
+
+    [Range(1, 65535)]
+    public int Port { get; set; } = 587;
+
+    [Display(Name = "Username")]
+    [MaxLength(200)]
+    public string? User { get; set; }
+
+    [Display(Name = "Send from")]
+    [EmailAddress(ErrorMessage = "That does not look like an email address.")]
+    [MaxLength(200)]
+    public string? From { get; set; }
+
+    [Display(Name = "App password")]
+    [MaxLength(200)]
+    public string? Password { get; set; }
+
+    [Display(Name = "API key")]
+    [MaxLength(400)]
+    public string? ApiKey { get; set; }
+
     public bool IsConfigured { get; set; }
+    public bool HasStoredPassword { get; set; }
+    public bool HasStoredApiKey { get; set; }
     public string SendsTo { get; set; } = "";
+
+    public bool Saved { get; set; }
     public bool Sent { get; set; }
     public string? Error { get; set; }
 }

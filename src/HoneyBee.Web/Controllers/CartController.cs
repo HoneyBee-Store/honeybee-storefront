@@ -164,7 +164,7 @@ public class CartController : Controller
         // the order is loaded, but the customer is not held on this button while
         // a mail server is contacted.
         await _db.Entry(order).Reference(o => o.PickupLocation).LoadAsync();
-        _notifier.QueueOrderEmail(order);
+        await _notifier.QueueOrderEmailAsync(order);
 
         HttpContext.Session.SaveCart(new Cart());
 
