@@ -99,6 +99,7 @@
                             <label class="form-label" asp-for="Password"></label>
                             <input class="form-control" asp-for="Password" type="password"
                                    autocomplete="new-password"
+                                   data-lpignore="true" data-1p-ignore
                                    placeholder="@(Model.HasStoredPassword ? "•••••••••••••••• (unchanged)" : "16 characters from Google")">
                             <div class="form-text">
                                 @if (Model.HasStoredPassword)
@@ -118,8 +119,15 @@
 
                         <div class="mb-3">
                             <label class="form-label" asp-for="ApiKey"></label>
-                            <input class="form-control" asp-for="ApiKey" type="password"
-                                   autocomplete="new-password"
+                            @* Deliberately not type="password". Chrome offers saved
+                               logins on any password box, and picking one here would
+                               silently store the admin's own password as the API key.
+                               Showing the token also makes a bad paste obvious — it is
+                               only ever visible to the signed-in owner, and the stored
+                               value is never rendered back into the page. *@
+                            <input class="form-control font-monospace" asp-for="ApiKey" type="text"
+                                   autocomplete="off" spellcheck="false"
+                                   data-lpignore="true" data-1p-ignore
                                    placeholder="@(Model.HasStoredApiKey ? "•••••••••••••••• (unchanged)" : "xkeysib-…")">
                             <div class="form-text">
                                 @if (Model.HasStoredApiKey)
