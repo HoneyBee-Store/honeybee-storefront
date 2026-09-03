@@ -51,7 +51,22 @@
             so it asks again even though you are signed in.
         </p>
 
-        @if (Model.LockedFor is { } wait)
+        @if (Model.NotConfigured)
+        {
+            <div class="gate-alert gate-alert-bad">
+                <strong>No passphrase is configured</strong>, so this page stays locked.
+            </div>
+            <p class="gate-sub" style="text-align:start">
+                Set one, then restart the app:
+            </p>
+            <pre class="gate-code">dotnet user-secrets set "Admin:EmailPassphrase" "your passphrase" --project src/HoneyBee.Web</pre>
+            <p class="gate-sub" style="text-align:start;margin-bottom:0">
+                Run it from the <code>honeybee-storefront</code> folder. On a server, set
+                <code>Admin__EmailPassphrase</code> as an environment variable instead.
+            </p>
+            <a class="gate-back" asp-action="Products">Back to products</a>
+        }
+        else if (Model.LockedFor is { } wait)
         {
             <div class="gate-alert gate-alert-bad">
                 <strong>Too many attempts.</strong>
@@ -195,5 +210,17 @@
         }
 
         .gate-note { color: #adb5bd; font-size: .8rem; margin: .75rem 0 0; }
+
+        .gate-code {
+            text-align: start;
+            background: #f6f5f2;
+            border: 1px solid #e4e1da;
+            border-radius: .4rem;
+            padding: .7rem .8rem;
+            font-size: .78rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0 0 1rem;
+        }
     </style>
 }

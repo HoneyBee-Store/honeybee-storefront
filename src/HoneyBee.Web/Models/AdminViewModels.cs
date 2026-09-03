@@ -132,6 +132,9 @@ public class EmailUnlockViewModel
     public bool Failed { get; set; }
     public int AttemptsLeft { get; set; }
 
+    /// <summary>True when no passphrase is configured, so nothing can unlock it.</summary>
+    public bool NotConfigured { get; set; }
+
     /// <summary>Set while too many wrong attempts are being cooled off.</summary>
     public TimeSpan? LockedFor { get; set; }
 }

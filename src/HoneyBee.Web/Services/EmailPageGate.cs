@@ -40,15 +40,20 @@ public class EmailPageGate
         _log = log;
     }
 
-    /// <summary>
-    /// False when no passphrase is configured — the gate then stays out of the
-    /// way rather than locking the owner out of their own settings.
-    /// </summary>
+    /// <summary>False when no passphrase is configured.</summary>
     public bool IsEnabled => !string.IsNullOrWhiteSpace(_passphrase);
 
+    /// <summary>
+    /// Locked when nothing is configured, not open.
+    ///
+    /// This used to fail open so a missing setting could not lock the owner
+    /// out — but that turns a misconfigured gate into no gate at all, silently,
+    /// which is exactly how it went unnoticed. The page now says what is wrong
+    /// and how to fix it instead of quietly letting everyone through.
+    /// </summary>
     public bool IsUnlocked(ISession session)
     {
-        if (!IsEnabled) return true;
+        if (!IsEnabled) return false;
 
         var stamp = session.GetString(KeyUnlockedAt);
 
@@ -87,7 +92,7 @@ public class EmailPageGate
     /// </summary>
     public bool TryUnlock(ISession session, string? attempt)
     {
-        if (!IsEnabled) return true;
+        if (!IsEnabled) return false;
         if (LockedFor(session) is not null) return false;
 
         // Constant-time: a plain == on strings returns as soon as two bytes

@@ -74,7 +74,8 @@ public class AdminController : Controller
         return View(new EmailUnlockViewModel
         {
             ReturnUrl = returnUrl,
-            LockedFor = _gate.LockedFor(HttpContext.Session)
+            LockedFor = _gate.LockedFor(HttpContext.Session),
+            NotConfigured = !_gate.IsEnabled
         });
     }
 
@@ -92,7 +93,8 @@ public class AdminController : Controller
         model.Passphrase = null;
         model.LockedFor = _gate.LockedFor(HttpContext.Session);
         model.AttemptsLeft = _gate.AttemptsLeft(HttpContext.Session);
-        model.Failed = model.LockedFor is null;
+        model.NotConfigured = !_gate.IsEnabled;
+        model.Failed = model.LockedFor is null && !model.NotConfigured;
 
         return View(model);
     }
@@ -112,7 +114,8 @@ public class AdminController : Controller
     private IActionResult LockedView() => View("Unlock", new EmailUnlockViewModel
     {
         ReturnUrl = Url.Action(nameof(Email)),
-        LockedFor = _gate.LockedFor(HttpContext.Session)
+        LockedFor = _gate.LockedFor(HttpContext.Session),
+        NotConfigured = !_gate.IsEnabled
     });
 
     [HttpPost]
