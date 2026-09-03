@@ -380,4 +380,7 @@
   <data name="FooterBlurb" xml:space="preserve">
     <value>عسل طبيعي ومنتجات نحل من مناحلنا الخاصة في الأردن. اطلب عبر الموقع أو تواصل معنا مباشرة، واستلم من الزرقاء أو عمّان.</value>
   </data>
+  <data name="DeliverySoon" xml:space="preserve">
+    <value>خدمة التوصيل قريبًا — حاليًا الاستلام من الزرقاء أو عمّان.</value>
+  </data>
 </root>

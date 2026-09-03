@@ -41,6 +41,9 @@
                                 }
                             </select>
                             <span class="field-error" asp-validation-for="PickupLocationId"></span>
+                            @* Answers the question here, where someone picking a
+                               location is most likely to be wondering it. *@
+                            <p class="field-help">@L["DeliverySoon"]</p>
                         </div>
 
                         <div>

@@ -875,3 +875,17 @@ textarea.field { line-height: 1.6; resize: vertical; }
 button.badge { cursor: pointer; font: inherit; font-size: .75rem; padding: .35em .65em; }
 .status-in { background: #1e7e34; color: #fff; }
 .status-out { background: #6c757d; color: #fff; }
+
+/* Notice that delivery is on the way — informative, not a promise being sold,
+   so it sits quieter than the contact links it follows. */
+.coming-soon {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-block-start: .85rem;
+  margin-bottom: 0;
+  font-size: .9rem;
+  color: var(--gold-pale);
+  opacity: .85;
+}
+.coming-soon i { font-size: 1rem; }

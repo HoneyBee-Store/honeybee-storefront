@@ -114,4 +114,7 @@
   <data name="Product" xml:space="preserve">
     <value>Product</value>
   </data>
+  <data name="DeliverySoon" xml:space="preserve">
+    <value>Delivery is coming soon — for now, collect from Zarqa or Amman.</value>
+  </data>
 </root>
