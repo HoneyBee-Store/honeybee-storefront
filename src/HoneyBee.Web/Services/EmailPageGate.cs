@@ -17,8 +17,12 @@ namespace HoneyBee.Web.Services;
 /// </summary>
 public class EmailPageGate
 {
-    /// <summary>How long one unlock lasts before it is asked for again.</summary>
-    private static readonly TimeSpan Lifetime = TimeSpan.FromMinutes(20);
+    /// <summary>
+    /// Outer bound on one unlock. In practice it usually ends sooner: leaving
+    /// the mail pages for anywhere else in the admin drops it immediately.
+    /// This only covers sitting on the page itself.
+    /// </summary>
+    private static readonly TimeSpan Lifetime = TimeSpan.FromMinutes(10);
 
     private const int MaxAttempts = 5;
     private static readonly TimeSpan LockoutFor = TimeSpan.FromMinutes(10);

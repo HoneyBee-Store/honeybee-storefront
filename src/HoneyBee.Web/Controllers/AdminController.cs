@@ -4,6 +4,7 @@ using HoneyBee.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace HoneyBee.Web.Controllers;
@@ -36,6 +37,29 @@ public class AdminController : Controller
         _notifier = notifier;
         _mail = mail;
         _gate = gate;
+    }
+
+    /// <summary>
+    /// The actions that count as "inside" the mail settings. Anything else
+    /// drops the unlock, so arriving at Email from elsewhere in the admin
+    /// always asks for the passphrase again — while saving and testing from
+    /// within the page do not.
+    /// </summary>
+    private static readonly HashSet<string> MailActions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        nameof(Email), nameof(Unlock), nameof(SendTestEmail), nameof(ClearMailPassword)
+    };
+
+    public override void OnActionExecuting(ActionExecutingContext context)
+    {
+        var action = context.ActionDescriptor.RouteValues["action"];
+
+        if (action is null || !MailActions.Contains(action))
+        {
+            _gate.Lock(HttpContext.Session);
+        }
+
+        base.OnActionExecuting(context);
     }
 
     // ---------- email ----------
@@ -71,15 +95,6 @@ public class AdminController : Controller
         model.Failed = model.LockedFor is null;
 
         return View(model);
-    }
-
-    /// <summary>Ends the unlock without signing out of the admin.</summary>
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult LockEmail()
-    {
-        _gate.Lock(HttpContext.Session);
-        return RedirectToAction(nameof(Unlock));
     }
 
     [HttpGet]
