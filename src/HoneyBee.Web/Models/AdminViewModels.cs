@@ -117,3 +117,21 @@ public class EmailSettingsViewModel
     public bool Sent { get; set; }
     public string? Error { get; set; }
 }
+
+/// <summary>
+/// Backs the passphrase prompt in front of the mail settings.
+/// </summary>
+public class EmailUnlockViewModel
+{
+    [Display(Name = "Passphrase")]
+    [MaxLength(200)]
+    public string? Passphrase { get; set; }
+
+    public string? ReturnUrl { get; set; }
+
+    public bool Failed { get; set; }
+    public int AttemptsLeft { get; set; }
+
+    /// <summary>Set while too many wrong attempts are being cooled off.</summary>
+    public TimeSpan? LockedFor { get; set; }
+}

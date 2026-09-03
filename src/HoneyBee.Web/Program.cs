@@ -47,6 +47,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddSingleton(builder.Configuration.GetSection("Shop").Get<ShopSettings>() ?? new ShopSettings());
 builder.Services.AddSingleton(builder.Configuration.GetSection("Smtp").Get<MailSettings>() ?? new MailSettings());
 builder.Services.AddScoped<MailSettingsStore>();
+builder.Services.AddScoped<EmailPageGate>();
 
 // Both ways of sending are registered; the stored Provider decides which one
 // a given message actually uses.
