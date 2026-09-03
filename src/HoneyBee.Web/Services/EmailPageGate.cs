@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -47,7 +48,16 @@ public class EmailPageGate
 
         var stamp = session.GetString(KeyUnlockedAt);
 
-        if (!DateTimeOffset.TryParse(stamp, out var unlockedAt)) return false;
+        // Invariant culture on purpose. Request localization sets Arabic as the
+        // default culture for every request, and parsing a round-trip timestamp
+        // under the ambient culture is a good way to silently fail and leave the
+        // page permanently locked.
+        if (!DateTimeOffset.TryParseExact(
+                stamp, "O", CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind, out var unlockedAt))
+        {
+            return false;
+        }
 
         return DateTimeOffset.UtcNow - unlockedAt < Lifetime;
     }
@@ -56,7 +66,12 @@ public class EmailPageGate
     {
         var until = session.GetString(KeyLockedTo);
 
-        if (!DateTimeOffset.TryParse(until, out var lockedUntil)) return null;
+        if (!DateTimeOffset.TryParseExact(
+                until, "O", CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind, out var lockedUntil))
+        {
+            return null;
+        }
 
         var remaining = lockedUntil - DateTimeOffset.UtcNow;
         return remaining > TimeSpan.Zero ? remaining : null;
@@ -85,7 +100,7 @@ public class EmailPageGate
             if (attempts >= MaxAttempts)
             {
                 session.SetString(KeyLockedTo,
-                    DateTimeOffset.UtcNow.Add(LockoutFor).ToString("O"));
+                    DateTimeOffset.UtcNow.Add(LockoutFor).ToString("O", CultureInfo.InvariantCulture));
                 session.SetInt32(KeyAttempts, 0);
                 _log.LogWarning("Mail settings passphrase locked out after {Count} attempts.", attempts);
             }
@@ -93,7 +108,7 @@ public class EmailPageGate
             return false;
         }
 
-        session.SetString(KeyUnlockedAt, DateTimeOffset.UtcNow.ToString("O"));
+        session.SetString(KeyUnlockedAt, DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture));
         session.Remove(KeyAttempts);
         session.Remove(KeyLockedTo);
         return true;

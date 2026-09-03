@@ -41,22 +41,12 @@ public class AdminController : Controller
     // ---------- email ----------
 
     /// <summary>
-    /// Lets the owner set the mail server from the admin rather than the command
-    /// line — user-secrets only work in development, so on a deployed server
-    /// this is the only practical way to change them.
-    /// </summary>
-    /// <summary>
-    /// Asks for the mail passphrase. Kept as its own page rather than a
-    /// browser dialog so the settings are never sent until it is accepted.
+    /// Asks for the mail passphrase. Always renders — it never redirects to
+    /// Email, so it cannot form a redirect pair with it.
     /// </summary>
     [HttpGet]
     public IActionResult Unlock(string? returnUrl)
     {
-        if (_gate.IsUnlocked(HttpContext.Session))
-        {
-            return RedirectToAction(nameof(Email));
-        }
-
         return View(new EmailUnlockViewModel
         {
             ReturnUrl = returnUrl,
@@ -95,14 +85,20 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> Email()
     {
-        if (!_gate.IsUnlocked(HttpContext.Session))
-        {
-            return RedirectToAction(nameof(Unlock),
-                new { returnUrl = Url.Action(nameof(Email)) });
-        }
+        // Rendered in place rather than redirected to. A redirect pair between
+        // this action and Unlock loops forever if the two ever disagree about
+        // the session — showing the dialog here cannot loop whatever happens.
+        if (!_gate.IsUnlocked(HttpContext.Session)) return LockedView();
 
         return View(await BuildEmailViewModelAsync());
     }
+
+    /// <summary>The passphrase dialog, shown in place of whatever was asked for.</summary>
+    private IActionResult LockedView() => View("Unlock", new EmailUnlockViewModel
+    {
+        ReturnUrl = Url.Action(nameof(Email)),
+        LockedFor = _gate.LockedFor(HttpContext.Session)
+    });
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -110,7 +106,7 @@ public class AdminController : Controller
     {
         // Checked on every write too: guarding only the GET would leave the
         // settings changeable by posting straight to this action.
-        if (!_gate.IsUnlocked(HttpContext.Session)) return RedirectToAction(nameof(Unlock));
+        if (!_gate.IsUnlocked(HttpContext.Session)) return LockedView();
 
         if (!ModelState.IsValid)
         {
@@ -129,7 +125,7 @@ public class AdminController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ClearMailPassword()
     {
-        if (!_gate.IsUnlocked(HttpContext.Session)) return RedirectToAction(nameof(Unlock));
+        if (!_gate.IsUnlocked(HttpContext.Session)) return LockedView();
 
         await _mail.ClearSecretsAsync();
 
@@ -142,7 +138,7 @@ public class AdminController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SendTestEmail()
     {
-        if (!_gate.IsUnlocked(HttpContext.Session)) return RedirectToAction(nameof(Unlock));
+        if (!_gate.IsUnlocked(HttpContext.Session)) return LockedView();
 
         var model = await BuildEmailViewModelAsync();
 
