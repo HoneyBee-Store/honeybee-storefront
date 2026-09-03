@@ -86,7 +86,7 @@
     <value>عسل نقي، مباشرة من الخلية</value>
   </data>
   <data name="HeroLead" xml:space="preserve">
-    <value>عسل ومنتجات نحل من خلايانا وحصادنا. اختر ما يعجبك وتواصل معنا لتأكيد الطلب والاستلام.</value>
+    <value>عسل ومنتجات نحل من خلايانا وحصادنا. اطلب من الموقع واستلم من الزرقاء أو عمّان.</value>
   </data>
   <data name="View Products" xml:space="preserve">
     <value>تصفّح المنتجات</value>
@@ -115,7 +115,7 @@
   </data>
 
   <data name="StoryBody" xml:space="preserve">
-    <value>كل عبوة تشاهدها في هذه الصفحة تأتي من خلايانا وحصادنا. تواصل معنا مباشرة لتأكيد طلبك والاتفاق على موعد الاستلام.</value>
+    <value>كل عبوة تشاهدها في هذه الصفحة تأتي من خلايانا وحصادنا. اطلب من الموقع ونتفق على موعد الاستلام.</value>
   </data>
   <data name="100% Natural" xml:space="preserve">
     <value>طبيعي ١٠٠٪</value>
@@ -131,7 +131,7 @@
     <value>تواصل معنا</value>
   </data>
   <data name="ContactIntro" xml:space="preserve">
-    <value>الطلب عبر الإنترنت غير متاح بعد — تواصل معنا مباشرة للاستفسار عن منتجاتنا.</value>
+    <value>اطلب مباشرة من الموقع، أو راسلنا على واتساب لأي استفسار.</value>
   </data>
   <data name="To contact and order" xml:space="preserve">
     <value>للتواصل والطلب</value>
@@ -201,7 +201,7 @@
     <value>حسابي</value>
   </data>
   <data name="OrdersComingSoon" xml:space="preserve">
-    <value>سجلّ الطلبات سيظهر هنا فور تفعيل الطلب عبر الموقع. حتى ذلك الحين، تواصل معنا هاتفيًا.</value>
+    <value>لم تقم بأي طلب بعد. تصفّح المنتجات واطلب من الموقع مباشرة.</value>
   </data>
   <data name="Enter a Jordanian mobile number, e.g. 0790000000." xml:space="preserve">
     <value>أدخل رقم هاتف أردني، مثال ٠٧٩٠٠٠٠٠٠٠.</value>

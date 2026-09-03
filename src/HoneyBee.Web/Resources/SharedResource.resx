@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    English (neutral culture).
+
+    IStringLocalizer falls back to the key itself when it finds no resource, so
+    a symbolic key like HeroLead rendered the literal word "HeroLead" on the
+    English site. Keys that are already English sentences do not need an entry
+    here — the fallback is correct for those. These are the ones that are not.
+  -->
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="HeroLead" xml:space="preserve">
+    <value>Honey and bee products from our own hives and our own harvest. Order from the site and collect in Zarqa or Amman.</value>
+  </data>
+  <data name="ProductsIntro" xml:space="preserve">
+    <value>Every jar on this page is something we actually harvested.</value>
+  </data>
+  <data name="StoryHeading" xml:space="preserve">
+    <value>From our hives to your table</value>
+  </data>
+  <data name="StoryBody" xml:space="preserve">
+    <value>Every jar on this page comes from our own hives and our own harvest. Order from the site and we'll agree a time for you to collect.</value>
+  </data>
+  <data name="StoryImageAlt" xml:space="preserve">
+    <value>Pieces of natural honeycomb</value>
+  </data>
+  <data name="ContactIntro" xml:space="preserve">
+    <value>Order straight from the site, or message us on WhatsApp with any question.</value>
+  </data>
+  <data name="MetaDescription" xml:space="preserve">
+    <value>Pure natural honey and bee products from our own apiaries in Jordan — Sidr, Jabali, Marrar and Kina honey, plus honeycomb, bee pollen, propolis and royal jelly.</value>
+  </data>
+  <data name="FooterBlurb" xml:space="preserve">
+    <value>Natural honey and bee products from our own apiaries in Jordan. Order online or contact us directly, and collect in Zarqa or Amman.</value>
+  </data>
+  <data name="ValueNatural" xml:space="preserve">
+    <value>No sugar, no additives, no colouring — honey exactly as the bee made it.</value>
+  </data>
+  <data name="ValueRaw" xml:space="preserve">
+    <value>Never pasteurised or filtered, so it keeps its pollen and natural properties.</value>
+  </data>
+  <data name="ValueFamily" xml:space="preserve">
+    <value>We keep our own bees and harvest the honey ourselves, season by season.</value>
+  </data>
+  <data name="ValuePickup" xml:space="preserve">
+    <value>Collect your order from Zarqa or Amman whenever suits you.</value>
+  </data>
+  <data name="AccountIntro" xml:space="preserve">
+    <value>Create an account to make your next order quicker.</value>
+  </data>
+  <data name="PhoneHelp" xml:space="preserve">
+    <value>This is the number you'll sign in with, and how we'll reach you to confirm the order.</value>
+  </data>
+  <data name="PasswordHelp" xml:space="preserve">
+    <value>At least 10 characters.</value>
+  </data>
+  <data name="OrdersComingSoon" xml:space="preserve">
+    <value>You haven't placed an order yet. Browse the products and order straight from the site.</value>
+  </data>
+  <data name="DeniedBody" xml:space="preserve">
+    <value>This page is for shop management only.</value>
+  </data>
+  <data name="CartNote" xml:space="preserve">
+    <value>Nothing is charged now. We'll contact you to confirm the order and a collection time.</value>
+  </data>
+  <data name="CheckoutPhoneHelp" xml:space="preserve">
+    <value>We'll reach you on this number to confirm the order.</value>
+  </data>
+  <data name="CheckoutNote" xml:space="preserve">
+    <value>Sending the order saves it with us, then you can send it on WhatsApp straight away.</value>
+  </data>
+  <data name="ConfirmationBody" xml:space="preserve">
+    <value>We've received your order. Order number:</value>
+  </data>
+  <data name="WhatsAppNote" xml:space="preserve">
+    <value>WhatsApp opens with your order details ready — press send and it reaches us straight away.</value>
+  </data>
+  <data name="JOD" xml:space="preserve">
+    <value>JOD</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="Explore" xml:space="preserve">
+    <value>Explore</value>
+  </data>
+  <data name="Zarqa" xml:space="preserve">
+    <value>Zarqa</value>
+  </data>
+  <data name="Amman" xml:space="preserve">
+    <value>Amman</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Order summary</value>
+  </data>
+  <data name="Product" xml:space="preserve">
+    <value>Product</value>
+  </data>
+</root>
