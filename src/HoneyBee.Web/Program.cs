@@ -1,6 +1,8 @@
 using HoneyBee.Web.Data;
 using HoneyBee.Web.Models;
 using HoneyBee.Web.Services;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,6 +48,21 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddSingleton(builder.Configuration.GetSection("Shop").Get<ShopSettings>() ?? new ShopSettings());
 builder.Services.AddSingleton(builder.Configuration.GetSection("Smtp").Get<MailSettings>() ?? new MailSettings());
+var storage = builder.Configuration.GetSection("Storage").Get<StorageSettings>() ?? new StorageSettings();
+builder.Services.AddSingleton(storage);
+
+// The keyring encrypts the stored mail credentials. Left to its default it can
+// live inside the application folder, which a deploy replaces — and the Brevo
+// API key would quietly stop decrypting. Pointed at persistent storage it
+// survives deployments.
+if (storage.HasKeys)
+{
+    Directory.CreateDirectory(storage.KeysPath!);
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(storage.KeysPath!))
+        .SetApplicationName("HoneyBee");
+}
+
 builder.Services.AddScoped<MailSettingsStore>();
 builder.Services.AddScoped<EmailPageGate>();
 
@@ -119,6 +136,18 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+// Uploaded photos live outside wwwroot on a real host, so they need serving
+// explicitly. Locally this is skipped and they stay under wwwroot as before.
+if (storage.HasUploads)
+{
+    Directory.CreateDirectory(storage.UploadsPath!);
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(storage.UploadsPath!),
+        RequestPath = StorageSettings.UploadsRequestPath
+    });
+}
 
 app.MapControllerRoute(
     name: "default",

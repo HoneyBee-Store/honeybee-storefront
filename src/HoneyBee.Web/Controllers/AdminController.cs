@@ -26,11 +26,14 @@ public class AdminController : Controller
     private readonly OrderNotifier _notifier;
     private readonly MailSettingsStore _mail;
     private readonly EmailPageGate _gate;
+    private readonly StorageSettings _storage;
 
     public AdminController(AppDbContext db, SignInManager<AppUser> signIn,
                            IWebHostEnvironment env, OrderNotifier notifier,
-                           MailSettingsStore mail, EmailPageGate gate)
+                           MailSettingsStore mail, EmailPageGate gate,
+                           StorageSettings storage)
     {
+        _storage = storage;
         _db = db;
         _signIn = signIn;
         _env = env;
@@ -408,7 +411,13 @@ public class AdminController : Controller
         if (!AllowedImageExtensions.Contains(extension))
             return (null, "Use a JPG, PNG or WebP image.");
 
-        var folder = Path.Combine(_env.WebRootPath, "img", "products");
+        // Written outside the application folder when persistent storage is
+        // configured: a deploy replaces wwwroot, so photos uploaded here would
+        // otherwise disappear the next time the app is published.
+        var (folder, urlPrefix) = _storage.HasUploads
+            ? (_storage.UploadsPath!, StorageSettings.UploadsRequestPath.TrimStart('/'))
+            : (Path.Combine(_env.WebRootPath, "img", "products"), "img/products");
+
         Directory.CreateDirectory(folder);
 
         var fileName = $"{Guid.NewGuid():N}{extension}";
@@ -419,7 +428,7 @@ public class AdminController : Controller
             await file.CopyToAsync(stream);
         }
 
-        return ($"img/products/{fileName}", null);
+        return ($"{urlPrefix}/{fileName}", null);
     }
 
     // ---------- pickup locations ----------
