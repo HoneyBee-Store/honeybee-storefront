@@ -4,58 +4,196 @@
     Layout = "_AdminLayout";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card mt-4">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center gap-2 mb-3">
-                    <span class="fs-4">🔒</span>
-                    <h1 class="h4 mb-0">Mail settings</h1>
-                </div>
-
-                <p class="text-muted">
-                    This page can change where order notifications are sent, so it asks
-                    again even though you are signed in.
-                </p>
-
-                @if (Model.LockedFor is { } wait)
+@* A skeleton stands in for the page behind the dialog. It is placeholder
+   shapes, never the real settings: the point of the gate is that nothing
+   sensitive reaches the browser until the passphrase is accepted. *@
+<div class="gate-behind" aria-hidden="true">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="skel skel-title"></div>
+        <div class="skel skel-pill"></div>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card"><div class="card-body">
+                @for (var i = 0; i < 4; i++)
                 {
-                    <div class="alert alert-danger mb-0">
-                        <strong>Too many attempts.</strong>
-                        Try again in @Math.Ceiling(wait.TotalMinutes) minute@(Math.Ceiling(wait.TotalMinutes) == 1 ? "" : "s").
-                    </div>
+                    <div class="skel skel-label"></div>
+                    <div class="skel skel-input mb-3"></div>
                 }
-                else
-                {
-                    @if (Model.Failed)
-                    {
-                        <div class="alert alert-danger">
-                            That passphrase is not right.
-                            @if (Model.AttemptsLeft > 0)
-                            {
-                                <text>@Model.AttemptsLeft attempt@(Model.AttemptsLeft == 1 ? "" : "s") left.</text>
-                            }
-                        </div>
-                    }
-
-                    <form asp-action="Unlock" method="post" autocomplete="off">
-                        <input type="hidden" asp-for="ReturnUrl" />
-
-                        <div class="mb-3">
-                            <label class="form-label" asp-for="Passphrase"></label>
-                            <input class="form-control form-control-lg" asp-for="Passphrase"
-                                   type="password" autocomplete="current-password"
-                                   autofocus required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">Unlock</button>
-                    </form>
-
-                    <p class="form-text mt-3 mb-0">
-                        Stays unlocked for 20 minutes, then asks again.
-                    </p>
-                }
-            </div>
+                <div class="skel skel-button"></div>
+            </div></div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card mb-4"><div class="card-body">
+                <div class="skel skel-label"></div>
+                <div class="skel skel-line"></div>
+                <div class="skel skel-line" style="width:70%"></div>
+                <div class="skel skel-button mt-3"></div>
+            </div></div>
+            <div class="card"><div class="card-body">
+                <div class="skel skel-label"></div>
+                <div class="skel skel-line"></div>
+                <div class="skel skel-line" style="width:80%"></div>
+            </div></div>
         </div>
     </div>
 </div>
+
+<div class="gate-backdrop"></div>
+
+<div class="gate-dialog" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-card">
+        <div class="gate-mark" aria-hidden="true">🔒</div>
+
+        <h1 class="gate-title" id="gateTitle">Mail settings are locked</h1>
+        <p class="gate-sub">
+            This page can change where every order notification is sent,
+            so it asks again even though you are signed in.
+        </p>
+
+        @if (Model.LockedFor is { } wait)
+        {
+            <div class="gate-alert gate-alert-bad">
+                <strong>Too many attempts.</strong>
+                Try again in @Math.Ceiling(wait.TotalMinutes) minute@(Math.Ceiling(wait.TotalMinutes) == 1 ? "" : "s").
+            </div>
+            <a class="gate-back" asp-action="Products">Back to products</a>
+        }
+        else
+        {
+            @if (Model.Failed)
+            {
+                <div class="gate-alert gate-alert-bad">
+                    That passphrase is not right.
+                    @if (Model.AttemptsLeft > 0)
+                    {
+                        <text>@Model.AttemptsLeft attempt@(Model.AttemptsLeft == 1 ? "" : "s") left.</text>
+                    }
+                </div>
+            }
+
+            <form asp-action="Unlock" method="post" autocomplete="off">
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <label class="gate-label" asp-for="Passphrase">Passphrase</label>
+                <input class="gate-input" asp-for="Passphrase" type="password"
+                       autocomplete="current-password" autofocus required
+                       data-lpignore="true" data-1p-ignore />
+
+                <button type="submit" class="gate-button">Unlock</button>
+            </form>
+
+            <a class="gate-back" asp-action="Products">Back to products</a>
+            <p class="gate-note">Stays unlocked for 20 minutes.</p>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Blurred placeholder behind the dialog — shapes only, no data. */
+        .gate-behind { filter: blur(5px); opacity: .5; pointer-events: none; user-select: none; }
+
+        .skel { background: #dfdcd6; border-radius: .35rem; }
+        .skel-title  { height: 1.9rem; width: 12rem; }
+        .skel-pill   { height: 1.2rem; width: 3rem; border-radius: 999px; }
+        .skel-label  { height: .8rem;  width: 6rem;  margin-bottom: .5rem; }
+        .skel-input  { height: 2.4rem; width: 100%; }
+        .skel-line   { height: .8rem;  width: 100%; margin-bottom: .5rem; }
+        .skel-button { height: 2.4rem; width: 7rem; }
+
+        .gate-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1050;
+            background: rgba(42, 29, 18, .55);
+        }
+
+        .gate-dialog {
+            position: fixed;
+            inset: 0;
+            z-index: 1060;
+            display: grid;
+            place-items: center;
+            padding: 1.25rem;
+            overflow-y: auto;
+        }
+
+        .gate-card {
+            width: 100%;
+            max-width: 26rem;
+            background: #fff;
+            border-radius: .6rem;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+            padding: 2rem 2rem 1.75rem;
+            text-align: center;
+            animation: gate-in .18s ease-out;
+        }
+
+        @@keyframes gate-in {
+            from { opacity: 0; transform: translateY(10px) scale(.98); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            .gate-card { animation: none; }
+        }
+
+        .gate-mark  { font-size: 2rem; line-height: 1; margin-bottom: .6rem; }
+        .gate-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 .5rem; }
+        .gate-sub   { color: #6c757d; font-size: .92rem; margin: 0 0 1.25rem; }
+
+        .gate-label {
+            display: block;
+            text-align: start;
+            font-size: .85rem;
+            font-weight: 600;
+            margin-bottom: .35rem;
+        }
+
+        .gate-input {
+            width: 100%;
+            padding: .65rem .8rem;
+            font-size: 1rem;
+            border: 1px solid #ced4da;
+            border-radius: .4rem;
+            margin-bottom: 1rem;
+        }
+        .gate-input:focus {
+            outline: none;
+            border-color: #C8952B;
+            box-shadow: 0 0 0 .2rem rgba(200, 149, 43, .25);
+        }
+
+        .gate-button {
+            width: 100%;
+            padding: .7rem 1rem;
+            border: 0;
+            border-radius: .4rem;
+            background: #C8952B;
+            color: #2A1D12;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .gate-button:hover { background: #A5761B; color: #fff; }
+
+        .gate-alert {
+            border-radius: .4rem;
+            padding: .7rem .85rem;
+            font-size: .9rem;
+            margin-bottom: 1rem;
+            text-align: start;
+        }
+        .gate-alert-bad { background: #f8d7da; color: #842029; }
+
+        .gate-back {
+            display: inline-block;
+            margin-top: .9rem;
+            font-size: .9rem;
+            color: #6c757d;
+        }
+
+        .gate-note { color: #adb5bd; font-size: .8rem; margin: .75rem 0 0; }
+    </style>
+}
