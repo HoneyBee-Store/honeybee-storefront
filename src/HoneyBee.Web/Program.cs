@@ -74,16 +74,15 @@ builder.Services.AddScoped<IMailTransport, BrevoMailTransport>();
 builder.Services.AddScoped<OrderNotifier>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(
+    options.UseNpgsql(
         builder.Configuration.GetConnectionString("Default"),
-        // LocalDB shuts itself down when idle and can take longer than the
-        // 15-second default to start again from cold. When that times out,
-        // EF concludes the database is missing and issues CREATE DATABASE,
-        // which then fails on the .mdf that is still sitting on disk.
-        sql => sql.CommandTimeout(60).EnableRetryOnFailure(
+        // Retries cover a managed database waking from idle, which several
+        // cheap hosts do — the first connection after a quiet spell can be
+        // slow enough to fail outright without them.
+        npgsql => npgsql.CommandTimeout(60).EnableRetryOnFailure(
             maxRetryCount: 3,
             maxRetryDelay: TimeSpan.FromSeconds(5),
-            errorNumbersToAdd: null)));
+            errorCodesToAdd: null)));
 
 // Admin sign-in only. IdentityCore rather than DefaultIdentity because the
 // latter scaffolds a full self-service account UI — register, forgot password,
@@ -160,14 +159,6 @@ app.MapControllerRoute(
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var sp = scope.ServiceProvider;
-
-    var startupLogger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
-
-    // Re-attaches the LocalDB files if the instance has lost track of them.
-    // Without this, EF sees no database, runs CREATE DATABASE, and fails on
-    // the .mdf that is still on disk — which stops the app dead at startup.
-    await DatabaseBootstrapper.EnsureAttachedAsync(
-        app.Configuration.GetConnectionString("Default"), startupLogger);
 
     var db = sp.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();

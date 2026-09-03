@@ -1,7 +1,7 @@
 # HoneyBee Storefront (v2)
 
 The database-backed rebuild of [HoneyBee Shop](https://honeybee-store.github.io/HoneyBee_Shop.github.io/).
-ASP.NET Core MVC on .NET 10, EF Core, SQL Server.
+ASP.NET Core MVC on .NET 10, EF Core, PostgreSQL.
 
 **v1 (the static site) stays live and untouched while this is built.** Nothing
 here affects it.
@@ -22,21 +22,27 @@ sequence.
 
 ## Running it locally
 
-You need the .NET 10 SDK and SQL Server. LocalDB (ships with Visual Studio and
-the SQL Server tools) is enough for development and is what this was verified
-against.
+You need the .NET 10 SDK and PostgreSQL. The Windows installer from
+<https://www.postgresql.org/download/windows/> includes the server and pgAdmin,
+and installs it as a service that starts with the machine.
 
-**1. Set the connection string**
+**1. Create the database**
 
-It is deliberately empty in `appsettings.json`, which is committed to git.
-User Secrets keeps the real value out of the repo:
+During installation you set a password for the `postgres` user. Use `postgres`
+to match the committed development connection string, or change the string to
+match what you chose.
+
+Then create an empty database called `honeybee` — either in pgAdmin, or:
 
 ```bash
-cd src/HoneyBee.Web
-dotnet user-secrets set "ConnectionStrings:Default" "Server=(localdb)\MSSQLLocalDB;Database=honeybee;Trusted_Connection=True;MultipleActiveResultSets=true"
+psql -U postgres -c "CREATE DATABASE honeybee;"
 ```
 
-Already configured on this machine — you only need this on a new one.
+The connection string for development lives in `appsettings.Development.json`
+rather than User Secrets, so every way of launching the app agrees on one
+database. It contains no real secret — a local database with a throwaway
+password. Production supplies `ConnectionStrings__Default` as an environment
+variable instead.
 
 **2. Run**
 
