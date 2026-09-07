@@ -132,7 +132,7 @@ if (!app.Environment.IsDevelopment())
 
     // The proxy's address is assigned by the host and not known in advance,
     // so the default allow-list of loopback only would ignore its headers.
-    forwarding.KnownNetworks.Clear();
+    forwarding.KnownIPNetworks.Clear();
     forwarding.KnownProxies.Clear();
 
     app.UseForwardedHeaders(forwarding);
