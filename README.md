@@ -1,7 +1,7 @@
 # HoneyBee Storefront (v2)
 
 The database-backed rebuild of [HoneyBee Shop](https://honeybee-store.github.io/HoneyBee_Shop.github.io/).
-ASP.NET Core MVC on .NET 10, EF Core, PostgreSQL.
+ASP.NET Core MVC on .NET 10, EF Core, SQL Server.
 
 **v1 (the static site) stays live and untouched while this is built.** Nothing
 here affects it.
@@ -22,27 +22,20 @@ sequence.
 
 ## Running it locally
 
-You need the .NET 10 SDK and PostgreSQL. The Windows installer from
-<https://www.postgresql.org/download/windows/> includes the server and pgAdmin,
-and installs it as a service that starts with the machine.
+You need the .NET 10 SDK and SQL Server. LocalDB, which ships with Visual
+Studio, is enough — that is what this is developed against.
 
-**1. Create the database**
+**1. Nothing to configure**
 
-During installation you set a password for the `postgres` user. Use `postgres`
-to match the committed development connection string, or change the string to
-match what you chose.
+The development connection string is in `appsettings.Development.json`, not
+User Secrets, so every way of launching the app agrees on one database. It
+holds no secret: LocalDB uses Windows authentication, so there are no
+credentials in it.
 
-Then create an empty database called `honeybee` — either in pgAdmin, or:
+The database is created on first run.
 
-```bash
-psql -U postgres -c "CREATE DATABASE honeybee;"
-```
-
-The connection string for development lives in `appsettings.Development.json`
-rather than User Secrets, so every way of launching the app agrees on one
-database. It contains no real secret — a local database with a throwaway
-password. Production supplies `ConnectionStrings__Default` as an environment
-variable instead.
+Production supplies `ConnectionStrings__Default` as an environment variable,
+which overrides the file.
 
 **2. Run**
 

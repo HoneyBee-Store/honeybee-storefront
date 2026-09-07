@@ -75,16 +75,15 @@ builder.Services.AddScoped<IMailTransport, BrevoMailTransport>();
 builder.Services.AddScoped<OrderNotifier>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        // Normalised so a hosting provider's postgresql:// URL works as-is.
-        ConnectionStrings.Normalise(builder.Configuration.GetConnectionString("Default")),
-        // Retries cover a managed database waking from idle, which several
-        // cheap hosts do — the first connection after a quiet spell can be
-        // slow enough to fail outright without them.
-        npgsql => npgsql.CommandTimeout(60).EnableRetryOnFailure(
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default"),
+        // Retries cover a shared database server that is briefly busy or
+        // waking from idle — common on cheap hosting, where the first
+        // connection after a quiet spell can otherwise fail outright.
+        sql => sql.CommandTimeout(60).EnableRetryOnFailure(
             maxRetryCount: 3,
             maxRetryDelay: TimeSpan.FromSeconds(5),
-            errorCodesToAdd: null)));
+            errorNumbersToAdd: null)));
 
 // Admin sign-in only. IdentityCore rather than DefaultIdentity because the
 // latter scaffolds a full self-service account UI — register, forgot password,
