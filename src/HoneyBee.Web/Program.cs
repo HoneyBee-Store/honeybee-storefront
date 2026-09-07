@@ -75,7 +75,8 @@ builder.Services.AddScoped<OrderNotifier>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("Default"),
+        // Normalised so a hosting provider's postgresql:// URL works as-is.
+        ConnectionStrings.Normalise(builder.Configuration.GetConnectionString("Default")),
         // Retries cover a managed database waking from idle, which several
         // cheap hosts do — the first connection after a quiet spell can be
         // slow enough to fail outright without them.
