@@ -50,6 +50,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddSingleton(builder.Configuration.GetSection("Shop").Get<ShopSettings>() ?? new ShopSettings());
 builder.Services.AddSingleton(builder.Configuration.GetSection("Smtp").Get<MailSettings>() ?? new MailSettings());
 var storage = builder.Configuration.GetSection("Storage").Get<StorageSettings>() ?? new StorageSettings();
+storage.ResolveAgainst(builder.Environment.ContentRootPath);
 builder.Services.AddSingleton(storage);
 
 // The keyring encrypts the stored mail credentials. Left to its default it can

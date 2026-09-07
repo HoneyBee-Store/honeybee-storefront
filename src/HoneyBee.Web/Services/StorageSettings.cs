@@ -33,4 +33,24 @@ public class StorageSettings
 
     /// <summary>The URL prefix uploads are served under.</summary>
     public const string UploadsRequestPath = "/uploads";
+
+    /// <summary>
+    /// Turns the configured paths into absolute ones.
+    ///
+    /// Shared Windows hosting gives you a site folder and nothing above it, so
+    /// an absolute path like /home/data cannot be used there — but the site's
+    /// own App_Data survives a publish as long as it is not deleted. Relative
+    /// paths are resolved against the content root so both styles work:
+    /// "/home/data/uploads" on a container host, "App_Data/uploads" on IIS.
+    /// </summary>
+    public void ResolveAgainst(string contentRoot)
+    {
+        UploadsPath = MakeAbsolute(UploadsPath, contentRoot);
+        KeysPath = MakeAbsolute(KeysPath, contentRoot);
+    }
+
+    private static string? MakeAbsolute(string? path, string contentRoot) =>
+        string.IsNullOrWhiteSpace(path) || Path.IsPathRooted(path)
+            ? path
+            : Path.GetFullPath(Path.Combine(contentRoot, path));
 }

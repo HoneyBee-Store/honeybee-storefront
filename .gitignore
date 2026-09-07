@@ -480,3 +480,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Host-specific settings, written on the server rather than committed. It holds
+# the production connection string and the admin credentials.
+appsettings.Production.json
