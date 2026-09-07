@@ -2,6 +2,7 @@ using HoneyBee.Web.Data;
 using HoneyBee.Web.Models;
 using HoneyBee.Web.Services;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -117,8 +118,25 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
+// Must come before anything that cares about the scheme. Every host worth
+// using terminates TLS at its own proxy and forwards plain HTTP inside, so
+// without this the app believes each request arrived over http, and
+// UseHttpsRedirection below bounces the browser to https — which arrives at
+// the proxy, is forwarded as http again, and loops until the browser gives up.
 if (!app.Environment.IsDevelopment())
 {
+    var forwarding = new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    };
+
+    // The proxy's address is assigned by the host and not known in advance,
+    // so the default allow-list of loopback only would ignore its headers.
+    forwarding.KnownNetworks.Clear();
+    forwarding.KnownProxies.Clear();
+
+    app.UseForwardedHeaders(forwarding);
+
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
