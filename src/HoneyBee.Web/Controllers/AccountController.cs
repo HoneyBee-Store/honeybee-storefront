@@ -108,8 +108,16 @@ public class AccountController : Controller
             ? PhoneNumbers.Normalise(model.Phone)
             : model.Phone.Trim();
 
-        var result = await _signIn.PasswordSignInAsync(
-            identifier, model.Password, model.RememberMe, lockoutOnFailure: true);
+        var user = await _users.FindByNameAsync(identifier) ?? await FindByPhoneAsync(model.Phone);
+
+        // The lookup is resolved to an account first so that the phone still
+        // works when the owner gave that account its own sign-in name from the
+        // admin. The form promises "sign in with your phone", and before this
+        // that promise quietly failed for every such account.
+        var result = user is null
+            ? Microsoft.AspNetCore.Identity.SignInResult.Failed
+            : await _signIn.PasswordSignInAsync(
+                  user, model.Password, model.RememberMe, lockoutOnFailure: true);
 
         if (result.Succeeded)
         {
@@ -117,8 +125,7 @@ public class AccountController : Controller
             // admin and everyone else to the shop.
             if (Url.IsLocalUrl(model.ReturnUrl)) return LocalRedirect(model.ReturnUrl!);
 
-            var user = await _users.FindByNameAsync(identifier);
-            if (user is not null && await _users.IsInRoleAsync(user, Roles.Admin))
+            if (await _users.IsInRoleAsync(user!, Roles.Admin))
             {
                 return RedirectToAction(nameof(AdminController.Products), "Admin");
             }
@@ -134,6 +141,27 @@ public class AccountController : Controller
                 : _l["Incorrect phone number or password."]);
 
         return View(model);
+    }
+
+    /// <summary>
+    /// Finds an account by the phone number typed into the sign-in form.
+    ///
+    /// Refuses to guess when two accounts share a number: signing somebody in
+    /// as whichever one happened to come back first would be worse than saying
+    /// the details are wrong.
+    /// </summary>
+    private async Task<AppUser?> FindByPhoneAsync(string typed)
+    {
+        if (!PhoneNumbers.LooksValid(typed)) return null;
+
+        var phone = PhoneNumbers.Normalise(typed);
+
+        var matches = _users.Users
+            .Where(u => u.PhoneNumber == phone)
+            .Take(2)
+            .ToList();
+
+        return matches.Count == 1 ? matches[0] : null;
     }
 
     [HttpPost]

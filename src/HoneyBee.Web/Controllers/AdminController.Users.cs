@@ -92,6 +92,12 @@ public partial class AdminController
         var phone = PhoneNumbers.Normalise(model.Phone);
         var userName = string.IsNullOrWhiteSpace(model.UserName) ? phone : model.UserName.Trim();
 
+        // Trimmed. The owner is setting a password for someone else and then
+        // reading it out to them, and a space picked up from a paste is
+        // invisible in this form but stored in the hash — after which the
+        // password they were given never works and nothing says why.
+        var password = model.Password?.Trim();
+
         AppUser user;
 
         if (model.IsNew)
@@ -111,7 +117,7 @@ public partial class AdminController
                 FullName = model.FullName.Trim()
             };
 
-            var created = await Users.CreateAsync(user, model.Password!);
+            var created = await Users.CreateAsync(user, password!);
             if (!created.Succeeded) return View(await FillUserFlagsAsync(model, created));
         }
         else
@@ -133,12 +139,12 @@ public partial class AdminController
             var updated = await Users.UpdateAsync(user);
             if (!updated.Succeeded) return View(await FillUserFlagsAsync(model, updated));
 
-            if (!string.IsNullOrWhiteSpace(model.Password))
+            if (!string.IsNullOrWhiteSpace(password))
             {
                 // Reset, not change: the owner is setting someone else's
                 // password and has no way to supply the old one.
                 var token = await Users.GeneratePasswordResetTokenAsync(user);
-                var reset = await Users.ResetPasswordAsync(user, token, model.Password);
+                var reset = await Users.ResetPasswordAsync(user, token, password);
                 if (!reset.Succeeded) return View(await FillUserFlagsAsync(model, reset));
             }
         }
