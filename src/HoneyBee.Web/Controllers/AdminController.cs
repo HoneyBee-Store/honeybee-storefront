@@ -12,7 +12,7 @@ namespace HoneyBee.Web.Controllers;
 // Role-gated, not just [Authorize]: customers can sign in too, and a bare
 // [Authorize] would let any of them reach the admin.
 [Authorize(Roles = Roles.Admin)]
-public class AdminController : Controller
+public partial class AdminController : Controller
 {
     private const long MaxImageBytes = 8 * 1024 * 1024;
 

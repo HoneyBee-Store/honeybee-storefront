@@ -1,0 +1,114 @@
+@model UserEditViewModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Add user" : "Edit user";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <h1 class="h3 mb-0">@(Model.IsNew ? "Add user" : "Edit user")</h1>
+    <a class="btn btn-outline-secondary ms-auto" asp-action="People">Back to users</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="EditUser" method="post" autocomplete="off">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="FullName"></label>
+                        <input class="form-control" asp-for="FullName" autocomplete="off">
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Phone"></label>
+                        <input class="form-control" asp-for="Phone" dir="ltr"
+                               placeholder="0790000000" autocomplete="off">
+                        <div class="form-text">Stored as +962…, so 079…, 00962… and +962… all count as the same person.</div>
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Email"></label>
+                        <input class="form-control" asp-for="Email" dir="ltr" autocomplete="off">
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="UserName"></label>
+                        <input class="form-control font-monospace" asp-for="UserName" dir="ltr"
+                               placeholder="the phone number" autocomplete="off">
+                        <div class="form-text">
+                            Leave blank to use the phone number, which is how customers sign in.
+                            Set something memorable for an admin account.
+                        </div>
+                        <span asp-validation-for="UserName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Password"></label>
+                        @* Not type="password": Chrome offers saved logins on any
+                           password box, and the owner is setting someone else's
+                           password here, not their own. *@
+                        <input class="form-control" asp-for="Password" type="text"
+                               autocomplete="off" spellcheck="false"
+                               data-lpignore="true" data-1p-ignore
+                               placeholder="@(Model.IsNew ? "at least 10 characters, with a symbol" : "leave blank to keep the current one")">
+                        <div class="form-text">
+                            @if (Model.IsNew)
+                            {
+                                <text>At least 10 characters, including a digit, a capital and a symbol.</text>
+                            }
+                            else
+                            {
+                                <text>
+                                    Only fill this in to set a new password. It cannot be shown —
+                                    the database keeps a hash, not the password.
+                                </text>
+                            }
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" asp-for="IsAdmin"
+                               disabled="@Model.IsLastAdmin">
+                        <label class="form-check-label" asp-for="IsAdmin"></label>
+                        <div class="form-text">
+                            @if (Model.IsLastAdmin)
+                            {
+                                <text>
+                                    This is the only admin account, so it cannot be demoted —
+                                    doing so would leave nobody able to reach the admin. Add a
+                                    second admin first.
+                                </text>
+                            }
+                            else
+                            {
+                                <text>Admins reach this whole panel. Customers only reach the shop.</text>
+                            }
+                        </div>
+                        @if (Model.IsLastAdmin)
+                        {
+                            @* A disabled checkbox posts nothing, which would read as
+                               "not an admin" and silently demote them. *@
+                            <input type="hidden" asp-for="IsAdmin" value="true" />
+                        }
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        @(Model.IsNew ? "Add user" : "Save changes")
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

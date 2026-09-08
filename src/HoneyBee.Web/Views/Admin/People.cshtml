@@ -1,0 +1,94 @@
+@model List<UserRowViewModel>
+@{
+    ViewData["Title"] = "Users";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <h1 class="h3 mb-0">Users</h1>
+    <span class="text-muted">@Model.Count</span>
+    <a class="btn btn-primary ms-auto" asp-action="CreateUser">Add user</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-secondary">
+        No accounts yet. Customers appear here when they register on the shop.
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Signs in with</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Added</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>
+                                @(string.IsNullOrWhiteSpace(user.FullName) ? "—" : user.FullName)
+                                @if (user.IsAdmin)
+                                {
+                                    <span class="badge text-bg-dark ms-1">Admin</span>
+                                }
+                                @if (user.IsSelf)
+                                {
+                                    <span class="badge text-bg-secondary ms-1">You</span>
+                                }
+                                @if (user.LockedUntil is not null)
+                                {
+                                    <span class="badge text-bg-warning ms-1">Locked</span>
+                                }
+                            </td>
+                            <td class="font-monospace small">@user.UserName</td>
+                            <td class="font-monospace small" dir="ltr">@(user.Phone ?? "—")</td>
+                            <td class="small">@(user.Email ?? "—")</td>
+                            <td class="small text-muted">@user.CreatedAt.ToString("d MMM yyyy")</td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-1">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       asp-action="EditUser" asp-route-id="@user.Id">Edit</a>
+
+                                    @if (user.LockedUntil is not null)
+                                    {
+                                        <form asp-action="UnlockUser" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-warning">Unlock</button>
+                                        </form>
+                                    }
+
+                                    @* No delete for the signed-in account: it would sign the
+                                       owner out mid-click and leave them unable to get back in. *@
+                                    @if (!user.IsSelf)
+                                    {
+                                        <form asp-action="DeleteUser" method="post" class="d-inline"
+                                              onsubmit="return confirm('Delete @user.UserName? Their past orders stay.');">
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="form-text mt-3">
+        Customers sign in with their phone number, so that is their sign-in name.
+        Deleting someone does not remove their orders — those keep their own copy
+        of the name and phone.
+    </p>
+}

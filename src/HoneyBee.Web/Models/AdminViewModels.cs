@@ -138,3 +138,69 @@ public class EmailUnlockViewModel
     /// <summary>Set while too many wrong attempts are being cooled off.</summary>
     public TimeSpan? LockedFor { get; set; }
 }
+
+/// <summary>One row on the users list.</summary>
+public class UserRowViewModel
+{
+    public string Id { get; set; } = "";
+    public string UserName { get; set; } = "";
+    public string? FullName { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public bool IsAdmin { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>Set while a wrong-password lockout is still running.</summary>
+    public DateTimeOffset? LockedUntil { get; set; }
+
+    /// <summary>The account the signed-in owner is using right now.</summary>
+    public bool IsSelf { get; set; }
+}
+
+/// <summary>
+/// Adding or editing one account.
+///
+/// The password is write-only: blank on an edit means "leave it alone", and
+/// it is never populated from the database because only a hash is stored
+/// there and a hash cannot be turned back into a password.
+/// </summary>
+public class UserEditViewModel
+{
+    public string? Id { get; set; }
+
+    [Required(ErrorMessage = "A name is needed.")]
+    [Display(Name = "Full name")]
+    [MaxLength(120)]
+    public string FullName { get; set; } = "";
+
+    [Required(ErrorMessage = "A phone number is needed.")]
+    [Display(Name = "Phone")]
+    [MaxLength(30)]
+    public string Phone { get; set; } = "";
+
+    [Display(Name = "Email")]
+    [EmailAddress(ErrorMessage = "That does not look like an email address.")]
+    [MaxLength(200)]
+    public string? Email { get; set; }
+
+    /// <summary>
+    /// Blank means the phone number, which is how customers sign in. The owner
+    /// needs something memorable instead, so it can be set explicitly.
+    /// </summary>
+    [Display(Name = "Sign-in name")]
+    [MaxLength(100)]
+    public string? UserName { get; set; }
+
+    [Display(Name = "Password")]
+    [MaxLength(200)]
+    public string? Password { get; set; }
+
+    [Display(Name = "Can reach the admin")]
+    public bool IsAdmin { get; set; }
+
+    public bool IsNew => string.IsNullOrEmpty(Id);
+
+    /// <summary>Blocks the two changes that could lock the owner out.</summary>
+    public bool IsSelf { get; set; }
+    public bool IsLastAdmin { get; set; }
+}
