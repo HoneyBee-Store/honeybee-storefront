@@ -73,6 +73,7 @@ builder.Services.AddScoped<EmailPageGate>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IMailTransport, SmtpMailTransport>();
 builder.Services.AddScoped<IMailTransport, BrevoMailTransport>();
+builder.Services.AddScoped<WhatsAppNotifier>();
 builder.Services.AddScoped<OrderNotifier>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>

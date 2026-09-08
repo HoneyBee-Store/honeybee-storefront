@@ -27,12 +27,14 @@ public class AdminController : Controller
     private readonly MailSettingsStore _mail;
     private readonly EmailPageGate _gate;
     private readonly StorageSettings _storage;
+    private readonly WhatsAppNotifier _whatsApp;
 
     public AdminController(AppDbContext db, SignInManager<AppUser> signIn,
                            IWebHostEnvironment env, OrderNotifier notifier,
                            MailSettingsStore mail, EmailPageGate gate,
-                           StorageSettings storage)
+                           StorageSettings storage, WhatsAppNotifier whatsApp)
     {
+        _whatsApp = whatsApp;
         _storage = storage;
         _db = db;
         _signIn = signIn;
@@ -50,7 +52,8 @@ public class AdminController : Controller
     /// </summary>
     private static readonly HashSet<string> MailActions = new(StringComparer.OrdinalIgnoreCase)
     {
-        nameof(Email), nameof(Unlock), nameof(SendTestEmail), nameof(ClearMailPassword)
+        nameof(Email), nameof(Unlock), nameof(SendTestEmail), nameof(ClearMailPassword),
+        nameof(SaveWhatsApp), nameof(SendTestWhatsApp)
     };
 
     public override void OnActionExecuting(ActionExecutingContext context)
@@ -196,6 +199,7 @@ public class AdminController : Controller
         EmailSettingsViewModel? posted = null)
     {
         var smtp = await _mail.GetAsync();
+        var whatsApp = await _mail.GetWhatsAppAsync();
 
         return new EmailSettingsViewModel
         {
@@ -207,8 +211,56 @@ public class AdminController : Controller
             IsConfigured = smtp.IsConfigured,
             HasStoredPassword = await _mail.HasStoredPasswordAsync(),
             HasStoredApiKey = await _mail.HasStoredApiKeyAsync(),
-            SendsTo = _notifier.OrderEmail
+            SendsTo = _notifier.OrderEmail,
+
+            WhatsAppPhone = posted?.WhatsAppPhone ?? whatsApp.Phone,
+            WhatsAppConfigured = whatsApp.IsConfigured,
+            HasStoredWhatsAppKey = await _mail.HasStoredWhatsAppKeyAsync()
         };
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveWhatsApp(EmailSettingsViewModel model)
+    {
+        if (!_gate.IsUnlocked(HttpContext.Session)) return LockedView();
+
+        await _mail.SaveWhatsAppAsync(model.WhatsAppPhone, model.WhatsAppApiKey);
+
+        var saved = await BuildEmailViewModelAsync();
+        saved.Saved = true;
+        return View(nameof(Email), saved);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendTestWhatsApp()
+    {
+        if (!_gate.IsUnlocked(HttpContext.Session)) return LockedView();
+
+        var model = await BuildEmailViewModelAsync();
+
+        if (!model.WhatsAppConfigured)
+        {
+            model.WhatsAppError = "Add the number and key, save them, then test.";
+            return View(nameof(Email), model);
+        }
+
+        try
+        {
+            var settings = await _mail.GetWhatsAppAsync();
+            await _whatsApp.SendAsync(settings,
+                "HoneyBee Shop — test message. If you are reading this, order notifications will arrive here.");
+
+            model.WhatsAppSent = true;
+        }
+        catch (Exception ex)
+        {
+            // The real message: this button exists to diagnose the settings.
+            model.WhatsAppError = ex.GetBaseException().Message;
+        }
+
+        return View(nameof(Email), model);
     }
 
     // ---------- auth ----------

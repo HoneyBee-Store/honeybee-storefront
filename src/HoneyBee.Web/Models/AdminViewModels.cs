@@ -108,6 +108,21 @@ public class EmailSettingsViewModel
     [MaxLength(400)]
     public string? ApiKey { get; set; }
 
+    // ---- WhatsApp to the shop's own number ----
+
+    [Display(Name = "WhatsApp number")]
+    [MaxLength(30)]
+    public string? WhatsAppPhone { get; set; }
+
+    [Display(Name = "CallMeBot API key")]
+    [MaxLength(100)]
+    public string? WhatsAppApiKey { get; set; }
+
+    public bool WhatsAppConfigured { get; set; }
+    public bool HasStoredWhatsAppKey { get; set; }
+    public bool WhatsAppSent { get; set; }
+    public string? WhatsAppError { get; set; }
+
     public bool IsConfigured { get; set; }
     public bool HasStoredPassword { get; set; }
     public bool HasStoredApiKey { get; set; }
