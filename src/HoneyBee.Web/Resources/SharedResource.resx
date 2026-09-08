@@ -135,4 +135,52 @@
   <data name="Copied" xml:space="preserve">
     <value>Copied</value>
   </data>
+  <data name="Waiting for approval" xml:space="preserve">
+    <value>Waiting for approval</value>
+  </data>
+  <data name="WaitForApproval" xml:space="preserve">
+    <value>Please wait until your transfer arrives. It will be approved in a moment.</value>
+  </data>
+  <data name="WaitForApprovalHint" xml:space="preserve">
+    <value>Press “Send request” again shortly. There is no need to reload the page.</value>
+  </data>
+  <data name="Got it" xml:space="preserve">
+    <value>Got it</value>
+  </data>
+  <data name="Please wait until your transfer arrives — it will be approved in a moment." xml:space="preserve">
+    <value>Please wait until your transfer arrives. It will be approved in a moment.</value>
+  </data>
+  <data name="This request was cancelled. Please contact us if that is unexpected." xml:space="preserve">
+    <value>This request was cancelled. Please contact us if that is unexpected.</value>
+  </data>
+  <data name="Previous requests" xml:space="preserve">
+    <value>Previous requests</value>
+  </data>
+  <data name="NoPreviousOrders" xml:space="preserve">
+    <value>No previous requests yet.</value>
+  </data>
+  <data name="PreviousOrdersGuestHint" xml:space="preserve">
+    <value>Sign in and your requests stay here, on any device.</value>
+  </data>
+  <data name="View details" xml:space="preserve">
+    <value>View details</value>
+  </data>
+  <data name="StatusAwaitingPayment" xml:space="preserve">
+    <value>Awaiting payment</value>
+  </data>
+  <data name="StatusNew" xml:space="preserve">
+    <value>Being reviewed</value>
+  </data>
+  <data name="StatusConfirmed" xml:space="preserve">
+    <value>Confirmed</value>
+  </data>
+  <data name="StatusReady" xml:space="preserve">
+    <value>Ready to collect</value>
+  </data>
+  <data name="StatusCollected" xml:space="preserve">
+    <value>Collected</value>
+  </data>
+  <data name="StatusCancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
 </root>

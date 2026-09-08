@@ -3,6 +3,93 @@
 (function () {
     'use strict';
 
+    /* -- checkout, held until the transfer is approved ----------------- */
+    // The button posts in place instead of navigating, so a customer who is
+    // waiting can press it again and again without losing the page they are on.
+    // The server answers with one of four states; the moment the owner approves,
+    // the next press comes back "approved" and this hands over to WhatsApp.
+    var checkoutForm = document.getElementById('checkoutForm');
+    var waitDialog = document.getElementById('waitDialog');
+
+    if (checkoutForm && waitDialog && window.fetch) {
+        var submitButton = document.getElementById('checkoutSubmit');
+        var dialogText = document.getElementById('waitDialogText');
+        var dialogRef = document.getElementById('waitDialogRef');
+        var waitingMessage = dialogText ? dialogText.textContent : '';
+        var busy = false;
+
+        function showDialog() {
+            // <dialog> without showModal() is inert, and older browsers have
+            // neither — falling back to alert() beats a button that does nothing.
+            if (typeof waitDialog.showModal === 'function') {
+                if (!waitDialog.open) waitDialog.showModal();
+            } else if (dialogText) {
+                window.alert(dialogText.textContent);
+            }
+        }
+
+        waitDialog.addEventListener('click', function (event) {
+            // The backdrop is part of the dialog element, so a click landing on
+            // the element itself (not its panel) means "outside".
+            if (event.target === waitDialog) waitDialog.close();
+        });
+
+        waitDialog.querySelectorAll('[data-close-dialog]').forEach(function (button) {
+            button.addEventListener('click', function () { waitDialog.close(); });
+        });
+
+        checkoutForm.addEventListener('submit', function (event) {
+            // Let the browser do its own required-field checking first.
+            if (checkoutForm.checkValidity && !checkoutForm.checkValidity()) return;
+
+            event.preventDefault();
+            if (busy) return;
+            busy = true;
+            if (submitButton) submitButton.disabled = true;
+
+            fetch(checkoutForm.action, {
+                method: 'POST',
+                body: new FormData(checkoutForm),
+                headers: { 'X-Requested-With': 'fetch' },
+                credentials: 'same-origin'
+            }).then(function (response) {
+                return response.json();
+            }).then(function (result) {
+                if (result.state === 'approved') {
+                    // Kept disabled: the page is on its way out, and a second
+                    // press here would open WhatsApp twice.
+                    window.location.href = result.url;
+                    return;
+                }
+
+                if (result.state === 'invalid') {
+                    // Nothing was saved, so let the ordinary post render the
+                    // field errors rather than reinventing them here.
+                    checkoutForm.submit();
+                    return;
+                }
+
+                if (result.message && dialogText) dialogText.textContent = result.message;
+
+                if (dialogRef) {
+                    dialogRef.textContent = result.orderNumber || '';
+                    dialogRef.hidden = !result.orderNumber;
+                }
+
+                showDialog();
+                busy = false;
+                if (submitButton) submitButton.disabled = false;
+            }).catch(function () {
+                // A dropped connection must not strand the customer on a dead
+                // button; fall back to an ordinary post, which always works.
+                busy = false;
+                if (submitButton) submitButton.disabled = false;
+                if (dialogText) dialogText.textContent = waitingMessage;
+                checkoutForm.submit();
+            });
+        });
+    }
+
     /* -- copy-to-clipboard (the CliQ alias) ---------------------------- */
     // Clipboard access is refused more often than it looks: Safari is strict,
     // several in-app browsers deny it outright, and it needs a secure context.

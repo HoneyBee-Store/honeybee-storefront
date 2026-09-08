@@ -46,6 +46,19 @@ public class AppDbContext : IdentityDbContext<AppUser>
              .WithMany()
              .HasForeignKey(o => o.PickupLocationId)
              .OnDelete(DeleteBehavior.Restrict);
+
+            // Deleting an account must not delete what that person ordered —
+            // the admin's own delete-user screen promises past orders survive,
+            // and the order carries its own copy of the name and phone anyway.
+            e.HasOne(o => o.User)
+             .WithMany()
+             .HasForeignKey(o => o.UserId)
+             .OnDelete(DeleteBehavior.SetNull);
+
+            // Both lookups behind "my previous requests": by account, and by
+            // phone for orders placed before that person registered.
+            e.HasIndex(o => o.UserId);
+            e.HasIndex(o => o.Phone);
         });
 
         b.Entity<OrderItem>(e =>

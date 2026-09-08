@@ -401,4 +401,49 @@
   <data name="Copied" xml:space="preserve">
     <value>تم النسخ</value>
   </data>
+  <data name="Waiting for approval" xml:space="preserve">
+    <value>بانتظار الموافقة</value>
+  </data>
+  <data name="WaitForApproval" xml:space="preserve">
+    <value>من فضلك الانتظار حتى يتم وصول المبلغ المالي وستتم الموافقة في لحظات.</value>
+  </data>
+  <data name="WaitForApprovalHint" xml:space="preserve">
+    <value>اضغط “إرسال الطلب” مرة أخرى بعد قليل. لا حاجة لتحديث الصفحة.</value>
+  </data>
+  <data name="Got it" xml:space="preserve">
+    <value>حسنًا</value>
+  </data>
+  <data name="Please wait until your transfer arrives — it will be approved in a moment." xml:space="preserve">
+    <value>من فضلك الانتظار حتى يتم وصول المبلغ المالي وستتم الموافقة في لحظات.</value>
+  </data>
+  <data name="This request was cancelled. Please contact us if that is unexpected." xml:space="preserve">
+    <value>تم إلغاء هذا الطلب. تواصل معنا إذا كان ذلك غير متوقع.</value>
+  </data>
+  <data name="Previous requests" xml:space="preserve">
+    <value>طلباتي السابقة</value>
+  </data>
+  <data name="NoPreviousOrders" xml:space="preserve">
+    <value>لا توجد طلبات سابقة بعد.</value>
+  </data>
+  <data name="PreviousOrdersGuestHint" xml:space="preserve">
+    <value>سجّل الدخول لتبقى طلباتك محفوظة هنا في أي وقت ومن أي جهاز.</value>
+  </data>
+  <data name="StatusAwaitingPayment" xml:space="preserve">
+    <value>بانتظار تأكيد الدفع</value>
+  </data>
+  <data name="StatusNew" xml:space="preserve">
+    <value>قيد المراجعة</value>
+  </data>
+  <data name="StatusConfirmed" xml:space="preserve">
+    <value>تم التأكيد</value>
+  </data>
+  <data name="StatusReady" xml:space="preserve">
+    <value>جاهز للاستلام</value>
+  </data>
+  <data name="StatusCollected" xml:space="preserve">
+    <value>تم الاستلام</value>
+  </data>
+  <data name="StatusCancelled" xml:space="preserve">
+    <value>ملغي</value>
+  </data>
 </root>

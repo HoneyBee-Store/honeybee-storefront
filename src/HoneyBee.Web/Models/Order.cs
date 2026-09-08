@@ -12,7 +12,16 @@ public enum OrderStatus
     Ready = 2,
     /// <summary>Collected and paid.</summary>
     Collected = 3,
-    Cancelled = 4
+    Cancelled = 4,
+    /// <summary>
+    /// Placed, but the shop has not yet seen the CliQ transfer arrive. The
+    /// customer cannot finish until someone confirms the money is in.
+    ///
+    /// Numbered after Cancelled rather than before New because the values are
+    /// stored as integers — inserting it in the middle would renumber every
+    /// status and silently rewrite the meaning of every existing order.
+    /// </summary>
+    AwaitingPayment = 5
 }
 
 /// <summary>
@@ -39,6 +48,28 @@ public class Order
     public PickupLocation? PickupLocation { get; set; }
 
     public OrderStatus Status { get; set; } = OrderStatus.New;
+
+    /// <summary>
+    /// The account that placed this, when the customer was signed in.
+    ///
+    /// Nullable on purpose: guests can order without registering, and every
+    /// order placed before this column existed has nobody to point at. It is
+    /// what lets someone see their own past requests after the session cookie
+    /// is gone — which, on a free host that recycles the app pool, is often.
+    /// </summary>
+    [MaxLength(450)]
+    public string? UserId { get; set; }
+    public AppUser? User { get; set; }
+
+    /// <summary>Waiting on the shop to confirm the transfer arrived.</summary>
+    public bool IsAwaitingPayment => Status == OrderStatus.AwaitingPayment;
+
+    /// <summary>
+    /// Cleared to proceed. Anything that is not "waiting" and not "cancelled"
+    /// means someone has looked at this order and let it through.
+    /// </summary>
+    public bool IsPaymentApproved =>
+        Status is not (OrderStatus.AwaitingPayment or OrderStatus.Cancelled);
 
     [MaxLength(1000)]
     public string? CustomerNotes { get; set; }

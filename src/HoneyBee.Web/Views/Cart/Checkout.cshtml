@@ -10,7 +10,7 @@
             <h1 class="section-title">@L["Confirm your request"]</h1>
         </header>
 
-        <form asp-action="Checkout" method="post">
+        <form asp-action="Checkout" method="post" id="checkoutForm">
             <div class="cart-layout">
                 <div class="panel">
                     <div asp-validation-summary="ModelOnly" class="notice notice-bad" role="alert"
@@ -90,7 +90,8 @@
                         </span>
                     </div>
 
-                    <button type="submit" class="btn-hb btn-gold btn-block" style="margin-block-start:1.25rem">
+                    <button type="submit" class="btn-hb btn-gold btn-block" id="checkoutSubmit"
+                            style="margin-block-start:1.25rem">
                         <i class="bi bi-whatsapp" aria-hidden="true"></i>@L["Send request"]
                     </button>
 
@@ -107,6 +108,47 @@
         </form>
     </div>
 </section>
+
+@*
+    Shown when the button is pressed and the transfer has not been confirmed
+    yet. It is a dialog rather than a browser alert() so it can carry the order
+    number and the shop's own voice — and because alert() is suppressed outright
+    by some mobile browsers, which would leave the button looking broken.
+
+    Rendered here rather than built in script so it is translated on the server
+    like everything else on the page.
+*@
+<dialog class="hb-dialog" id="waitDialog" aria-labelledby="waitDialogTitle">
+    <div class="hb-dialog-body">
+        <i class="bi bi-hourglass-split hb-dialog-icon" aria-hidden="true"></i>
+        <h2 class="hb-dialog-title" id="waitDialogTitle">@L["Waiting for approval"]</h2>
+        <p class="hb-dialog-text" id="waitDialogText">@L["WaitForApproval"]</p>
+        <p class="order-ref" id="waitDialogRef" hidden></p>
+        <p class="field-help">@L["WaitForApprovalHint"]</p>
+        <button type="button" class="btn-hb btn-gold btn-block" data-close-dialog>@L["Got it"]</button>
+    </div>
+</dialog>
+
+@*
+    Same three outcomes for anyone whose JavaScript did not run. The server
+    redirects back here with the state in TempData, so the button still works
+    without scripts — it just costs a page load per press.
+*@
+@if (TempData["CheckoutState"] is string noScriptState)
+{
+    <div class="container-hb" style="padding-block-end:2rem">
+        <div class="notice @(noScriptState == "cancelled" ? "notice-bad" : "notice-warn")" role="alert">
+            <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+            <span>
+                @TempData["CheckoutMessage"]
+                @if (TempData["PendingOrder"] is string pendingRef)
+                {
+                    <strong class="u-ltr" dir="ltr" style="margin-inline-start:.35rem">@pendingRef</strong>
+                }
+            </span>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -476,7 +476,7 @@ public partial class AdminController : Controller
         return RedirectToAction(nameof(Locations));
     }
 
-    // ---------- orders (placeholder until phase 3) ----------
+    // ---------- orders ----------
 
     public async Task<IActionResult> Orders()
     {
@@ -487,6 +487,80 @@ public partial class AdminController : Controller
             .AsNoTracking()
             .ToListAsync();
 
+        // Orders still waiting on a transfer float to the top: they are the only
+        // ones with a customer sitting on the other end, pressing a button.
+        orders = orders
+            .OrderByDescending(o => o.Status == OrderStatus.AwaitingPayment)
+            .ThenByDescending(o => o.CreatedAt)
+            .ToList();
+
         return View(orders);
+    }
+
+    /// <summary>
+    /// Confirms the CliQ transfer arrived, which is what releases the customer's
+    /// checkout. Their next press of the button goes straight through.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ApproveOrder(int id)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order is null) return NotFound();
+
+        if (order.Status != OrderStatus.AwaitingPayment)
+        {
+            // Already dealt with, most likely by a second tab or a double click.
+            // Saying so is friendlier than silently doing nothing.
+            TempData["Message"] = $"{order.OrderNumber} was already {order.Status}.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        order.Status = OrderStatus.New;
+        await _db.SaveChangesAsync();
+
+        TempData["Message"] = $"Approved {order.OrderNumber}. The customer can now finish their order.";
+        return RedirectToAction(nameof(Orders));
+    }
+
+    /// <summary>
+    /// Turns an order down. Without this the customer would be left pressing a
+    /// button that never releases, with nothing telling them why.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CancelOrder(int id)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order is null) return NotFound();
+
+        order.Status = OrderStatus.Cancelled;
+        await _db.SaveChangesAsync();
+
+        TempData["Message"] = $"Cancelled {order.OrderNumber}.";
+        return RedirectToAction(nameof(Orders));
+    }
+
+    /// <summary>Moves an order along its normal course after approval.</summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetOrderStatus(int id, OrderStatus status)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order is null) return NotFound();
+
+        // Not a route back into the waiting state: the customer's checkout has
+        // already been released and cannot be un-released.
+        if (status == OrderStatus.AwaitingPayment)
+        {
+            TempData["Message"] = "An order cannot be put back to awaiting payment.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        order.Status = status;
+        await _db.SaveChangesAsync();
+
+        TempData["Message"] = $"{order.OrderNumber} is now {status}.";
+        return RedirectToAction(nameof(Orders));
     }
 }

@@ -765,6 +765,84 @@ textarea.field { line-height: 1.6; resize: vertical; }
 .notice-warn { background: rgba(200, 149, 43, .14); border-color: var(--gold-deep); color: #6E4E0F; }
 .notice-bad  { background: rgba(163, 52, 31, .1);  border-color: #A3341F; color: #7E2817; }
 
+/* --------------------------------------------------- previous requests -- */
+.past-orders { margin-block-start: 2.5rem; }
+.past-orders .section-title { margin-bottom: 1rem; }
+
+.past-order {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem clamp(1.15rem, 3vw, 1.75rem);
+  color: inherit;
+  text-decoration: none;
+  border-block-end: 1px solid var(--rule-soft);
+}
+.past-order:last-child { border-block-end: 0; }
+.past-order:hover, .past-order:focus { background: var(--beige-soft); }
+
+.past-order-main {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+.past-order-side {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-inline-start: auto;
+}
+
+.order-chip {
+  padding: .2rem .6rem;
+  border-radius: var(--r-pill);
+  font-size: .8rem;
+  white-space: nowrap;
+}
+.order-chip--wait { background: rgba(200, 149, 43, .18); color: #6E4E0F; }
+.order-chip--on   { background: rgba(42, 29, 18, .08);   color: var(--ink-soft); }
+.order-chip--ok   { background: rgba(46, 107, 55, .12);  color: #235029; }
+.order-chip--bad  { background: rgba(163, 52, 31, .1);   color: #7E2817; }
+
+/* --------------------------------------------------------------- dialog -- */
+/* Native <dialog>, so the browser handles focus trapping, Escape and the
+   top layer — none of which is worth hand-rolling for one panel. */
+.hb-dialog {
+  border: 0;
+  padding: 0;
+  max-width: min(28rem, calc(100vw - 2rem));
+  border-radius: var(--r-lg);
+  background: transparent;
+  color: var(--ink);
+}
+.hb-dialog::backdrop {
+  background: rgba(42, 29, 18, .55);
+  backdrop-filter: blur(2px);
+}
+.hb-dialog-body {
+  padding: clamp(1.5rem, 5vw, 2.25rem);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border-block-start: 4px solid var(--gold);
+  text-align: center;
+}
+.hb-dialog-icon {
+  font-size: 2.25rem;
+  color: var(--gold);
+}
+.hb-dialog-title {
+  font-size: var(--t-1);
+  margin-block: .75rem .5rem;
+}
+.hb-dialog-text {
+  color: var(--ink-soft);
+  margin-block-end: .75rem;
+}
+.hb-dialog .order-ref { margin-block-end: .75rem; }
+.hb-dialog .btn-hb { margin-block-start: 1.25rem; }
+
 /* ------------------------------------------------------------------ cliq -- */
 /* The alias is the one thing on the page that must be read character by
    character, so it gets more weight than anything around it. */

@@ -23,6 +23,12 @@ public class CartViewModel
 
     public int TotalItems => Lines.Sum(l => l.Quantity);
     public bool IsEmpty => Lines.Count == 0;
+
+    /// <summary>
+    /// What this person has ordered before, newest first. Empty for a visitor
+    /// the site has no way to recognise.
+    /// </summary>
+    public List<Order> PreviousOrders { get; set; } = new();
 }
 
 public class CheckoutViewModel

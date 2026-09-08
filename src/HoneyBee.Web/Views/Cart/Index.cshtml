@@ -120,5 +120,81 @@
                 </aside>
             </div>
         }
+
+        @{
+            // Arabic for the customer, not the enum's English. Awaiting payment
+            // is the one they will actually be looking for.
+            Func<OrderStatus, string> statusLabel = status => status switch
+            {
+                OrderStatus.AwaitingPayment => L["StatusAwaitingPayment"].Value,
+                OrderStatus.New             => L["StatusNew"].Value,
+                OrderStatus.Confirmed       => L["StatusConfirmed"].Value,
+                OrderStatus.Ready           => L["StatusReady"].Value,
+                OrderStatus.Collected       => L["StatusCollected"].Value,
+                OrderStatus.Cancelled       => L["StatusCancelled"].Value,
+                _                           => status.ToString()
+            };
+
+            Func<OrderStatus, string> statusClass = status => status switch
+            {
+                OrderStatus.AwaitingPayment => "order-chip--wait",
+                OrderStatus.Cancelled       => "order-chip--bad",
+                OrderStatus.Collected       => "order-chip--ok",
+                _                           => "order-chip--on"
+            };
+        }
+
+        <section class="past-orders">
+            <h2 class="section-title" style="font-size:var(--t-1)">@L["Previous requests"]</h2>
+
+            @if (Model.PreviousOrders.Count == 0)
+            {
+                <div class="panel">
+                    <p class="field-help" style="margin:0">@L["NoPreviousOrders"]</p>
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        @* The honest reason they vanish: without an account there
+                           is nothing durable to tie an order to. *@
+                        <p class="field-help" style="margin-block-start:.5rem">
+                            @L["PreviousOrdersGuestHint"]
+                        </p>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="panel panel--flush">
+                    @foreach (var order in Model.PreviousOrders)
+                    {
+                        <a class="past-order" asp-action="Confirmation"
+                           asp-route-orderNumber="@order.OrderNumber">
+                            <span class="past-order-main">
+                                <strong class="u-ltr" dir="ltr">@order.OrderNumber</strong>
+                                <span class="cart-line-meta">
+                                    @order.CreatedAt.ToLocalTime().ToString("d MMM yyyy")
+                                    · @order.Items.Sum(i => i.Quantity) @L["Items"]
+                                </span>
+                            </span>
+                            <span class="past-order-side">
+                                @if (order.Total is not null)
+                                {
+                                    <span class="u-nowrap">@($"{order.Total:0.###}") @L["JOD"]</span>
+                                }
+                                <span class="order-chip @statusClass(order.Status)">
+                                    @statusLabel(order.Status)
+                                </span>
+                            </span>
+                        </a>
+                    }
+                </div>
+
+                @if (User.Identity?.IsAuthenticated != true)
+                {
+                    <p class="field-help" style="margin-block-start:1rem">
+                        @L["PreviousOrdersGuestHint"]
+                    </p>
+                }
+            }
+        </section>
     </div>
 </section>

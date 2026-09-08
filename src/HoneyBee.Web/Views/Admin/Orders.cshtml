@@ -2,17 +2,51 @@
 @{
     ViewData["Title"] = "Orders";
     Layout = "_AdminLayout";
+
+    var waiting = Model.Count(o => o.Status == OrderStatus.AwaitingPayment);
+
+    // Bootstrap has no "waiting" colour that reads as urgent without reading as
+    // broken, so the mapping is spelled out rather than guessed at each row.
+    static string Badge(OrderStatus status) => status switch
+    {
+        OrderStatus.AwaitingPayment => "text-bg-warning",
+        OrderStatus.New             => "text-bg-primary",
+        OrderStatus.Confirmed       => "text-bg-info",
+        OrderStatus.Ready           => "text-bg-secondary",
+        OrderStatus.Collected       => "text-bg-success",
+        OrderStatus.Cancelled       => "text-bg-danger",
+        _                           => "text-bg-secondary"
+    };
+
+    static string Label(OrderStatus status) =>
+        status == OrderStatus.AwaitingPayment ? "Awaiting payment" : status.ToString();
 }
 
-<h1 class="h3 mb-4">Orders</h1>
+<div class="d-flex align-items-center gap-3 mb-4">
+    <h1 class="h3 mb-0">Orders</h1>
+    <span class="text-muted">@Model.Count</span>
+</div>
+
+@if (waiting > 0)
+{
+    @* The whole point of the page now. Someone is sitting on the checkout page
+       pressing a button that will not release until one of these is approved. *@
+    <div class="alert alert-warning d-flex align-items-center gap-2">
+        <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+        <div>
+            <strong>@waiting waiting on payment.</strong>
+            Check the CliQ transfer arrived, then approve — the customer's next
+            press of "Send request" goes straight through, with no reload.
+        </div>
+    </div>
+}
 
 @if (Model.Count == 0)
 {
     <div class="admin-card p-4 text-center">
         <p class="mb-1 fw-semibold">No orders yet</p>
         <p class="text-body-secondary small mb-0">
-            Customers can't place orders until the cart is built (phase 3).
-            Until then they order by phone, and this page stays empty.
+            Orders placed on the shop appear here.
         </p>
     </div>
 }
@@ -26,14 +60,16 @@ else
                     <th scope="col">Customer</th>
                     <th scope="col">Pickup</th>
                     <th scope="col">Items</th>
+                    <th scope="col">Total</th>
                     <th scope="col">Status</th>
                     <th scope="col">Placed</th>
+                    <th scope="col" class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var o in Model)
                 {
-                    <tr>
+                    <tr class="@(o.Status == OrderStatus.AwaitingPayment ? "table-warning" : "")">
                         <td class="font-monospace">@o.OrderNumber</td>
                         <td>
                             <div>@o.CustomerName</div>
@@ -41,11 +77,60 @@ else
                         </td>
                         <td>@(o.PickupLocation?.NameEn ?? "—")</td>
                         <td>@o.Items.Sum(i => i.Quantity)</td>
-                        <td><span class="badge bg-secondary">@o.Status</span></td>
+                        <td class="text-nowrap">
+                            @(o.Total is null ? "—" : $"{o.Total:0.###} JOD")
+                        </td>
+                        <td>
+                            <span class="badge @Badge(o.Status)">@Label(o.Status)</span>
+                        </td>
                         <td class="text-nowrap small">@o.CreatedAt.ToLocalTime().ToString("d MMM yyyy HH:mm")</td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                @if (o.Status == OrderStatus.AwaitingPayment)
+                                {
+                                    <form asp-action="ApproveOrder" method="post" class="d-inline"
+                                          onsubmit="return confirm('Approve @o.OrderNumber? Only do this once the CliQ transfer has arrived.');">
+                                        <input type="hidden" name="id" value="@o.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-lg" aria-hidden="true"></i> Approve
+                                        </button>
+                                    </form>
+                                }
+                                else if (o.Status != OrderStatus.Cancelled && o.Status != OrderStatus.Collected)
+                                {
+                                    <form asp-action="SetOrderStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@o.Id" />
+                                        <input type="hidden" name="status"
+                                               value="@(o.Status == OrderStatus.New ? OrderStatus.Confirmed
+                                                        : o.Status == OrderStatus.Confirmed ? OrderStatus.Ready
+                                                        : OrderStatus.Collected)" />
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                            Mark @(o.Status == OrderStatus.New ? "confirmed"
+                                                   : o.Status == OrderStatus.Confirmed ? "ready"
+                                                   : "collected")
+                                        </button>
+                                    </form>
+                                }
+
+                                @if (o.Status != OrderStatus.Cancelled && o.Status != OrderStatus.Collected)
+                                {
+                                    <form asp-action="CancelOrder" method="post" class="d-inline"
+                                          onsubmit="return confirm('Cancel @o.OrderNumber? The customer is told their request was cancelled.');">
+                                        <input type="hidden" name="id" value="@o.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+
+    <p class="form-text mt-3">
+        A new order arrives as <strong>Awaiting payment</strong> and stays there
+        until you approve it, which is what lets the customer finish. Approving
+        does not confirm the pickup time — that is the next step along.
+    </p>
 }
