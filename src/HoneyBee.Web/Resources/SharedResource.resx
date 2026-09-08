@@ -64,7 +64,7 @@
     <value>This page is for shop management only.</value>
   </data>
   <data name="CartNote" xml:space="preserve">
-    <value>Nothing is charged now. We'll contact you to confirm the order and a collection time.</value>
+    <value>Nothing is charged through the site. Pay in cash when you collect or transfer by CliQ — we'll contact you to confirm the order and a collection time.</value>
   </data>
   <data name="CheckoutPhoneHelp" xml:space="preserve">
     <value>We'll reach you on this number to confirm the order.</value>
@@ -116,5 +116,23 @@
   </data>
   <data name="DeliverySoon" xml:space="preserve">
     <value>Delivery is coming soon — for now, collect from Zarqa or Amman.</value>
+  </data>
+  <data name="Pay with CliQ" xml:space="preserve">
+    <value>Pay with CliQ</value>
+  </data>
+  <data name="CliqNote" xml:space="preserve">
+    <value>Transfer the order total from your banking app to the alias below, then send us the receipt on WhatsApp. Or pay in cash when you collect.</value>
+  </data>
+  <data name="CliQ alias" xml:space="preserve">
+    <value>CliQ alias</value>
+  </data>
+  <data name="CliqReference" xml:space="preserve">
+    <value>Quote your order number in the transfer note:</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Copied</value>
   </data>
 </root>

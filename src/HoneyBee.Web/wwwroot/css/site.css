@@ -765,6 +765,72 @@ textarea.field { line-height: 1.6; resize: vertical; }
 .notice-warn { background: rgba(200, 149, 43, .14); border-color: var(--gold-deep); color: #6E4E0F; }
 .notice-bad  { background: rgba(163, 52, 31, .1);  border-color: #A3341F; color: #7E2817; }
 
+/* ------------------------------------------------------------------ cliq -- */
+/* The alias is the one thing on the page that must be read character by
+   character, so it gets more weight than anything around it. */
+.cliq-panel {
+  margin-block-start: 1.5rem;
+  border-inline-start: 3px solid var(--gold);
+}
+.cliq-head {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  font-size: var(--t-1);
+  margin-bottom: .6rem;
+}
+.cliq-intro { margin-bottom: 1.1rem; }
+
+.cliq-alias {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1rem;
+  padding: .9rem 1.1rem;
+  border: 1px dashed var(--gold);
+  border-radius: var(--r-sm);
+  background: var(--cream);
+}
+.cliq-alias-label {
+  font-size: .85rem;
+  color: var(--ink-soft);
+}
+.cliq-alias-value {
+  font-family: var(--font-display);
+  font-size: var(--t-2);
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--gold-deep);
+  /* Selectable in one gesture for anyone who ignores the copy button. */
+  user-select: all;
+}
+.cliq-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin-inline-start: auto;
+  padding: .4rem .8rem;
+  font: inherit;
+  font-size: .9rem;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.cliq-copy:hover, .cliq-copy:focus { border-color: var(--gold); background: var(--beige-soft); }
+.cliq-copy.is-done { border-color: var(--ok); color: var(--ok); }
+
+.cliq-ref {
+  margin-block-start: 1rem;
+  font-size: .95rem;
+  color: var(--ink-soft);
+}
+.cliq-ref strong {
+  color: var(--gold-deep);
+  margin-inline-start: .35rem;
+}
+
 /* ---------------------------------------------------------------- footer -- */
 .site-footer {
   background: var(--choc);

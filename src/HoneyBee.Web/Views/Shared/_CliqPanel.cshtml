@@ -1,0 +1,44 @@
+@*
+    How a customer pays by CliQ.
+
+    CliQ transfers start in the customer's own banking app, so there is nothing
+    to integrate and nothing for the site to confirm — all we can do is show the
+    alias accurately and make it hard to mistype. Hence the copy button and the
+    LTR, letter-spaced treatment: the alias is Latin text sitting in an Arabic,
+    right-to-left page, and one wrong character sends someone's money elsewhere.
+
+    The model is the payment reference to quote — the order number once there is
+    one, null before the order exists.
+*@
+@model string
+@inject HoneyBee.Web.Services.ShopSettings Shop
+
+@if (!string.IsNullOrWhiteSpace(Shop.CliqAlias))
+{
+    <div class="panel cliq-panel">
+        <h2 class="cliq-head">
+            <i class="bi bi-bank" aria-hidden="true"></i>@L["Pay with CliQ"]
+        </h2>
+
+        <p class="field-help cliq-intro">@L["CliqNote"]</p>
+
+        <div class="cliq-alias">
+            <span class="cliq-alias-label">@L["CliQ alias"]</span>
+            <span class="cliq-alias-value u-ltr" dir="ltr" id="cliqAlias">@Shop.CliqAlias</span>
+            @* Enhancement only: the alias is selectable text with or without it,
+               so a browser that refuses clipboard access loses nothing. *@
+            <button type="button" class="cliq-copy" data-copy-target="cliqAlias"
+                    data-copied="@L["Copied"]">
+                <i class="bi bi-clipboard" aria-hidden="true"></i>@L["Copy"]
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model))
+        {
+            <p class="cliq-ref">
+                @L["CliqReference"]
+                <strong class="u-ltr" dir="ltr">@Model</strong>
+            </p>
+        }
+    </div>
+}

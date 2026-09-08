@@ -12,6 +12,13 @@ public class ShopSettings
     /// <summary>The shop's own WhatsApp number, in international form.</summary>
     public string WhatsAppNumber { get; set; } = "+962799423449";
     public string OrderEmail { get; set; } = "beee20030@gmail.com";
+
+    /// <summary>
+    /// The shop's CliQ alias, which customers send payment to from their own
+    /// banking app. Configurable because it is the kind of thing that changes
+    /// with a bank account, and hunting it down in a view would be miserable.
+    /// </summary>
+    public string CliqAlias { get; set; } = "KHAEHMAA";
 }
 
 /// <summary>

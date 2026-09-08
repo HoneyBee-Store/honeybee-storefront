@@ -270,7 +270,7 @@
     <value>متابعة</value>
   </data>
   <data name="CartNote" xml:space="preserve">
-    <value>لن يتم الدفع الآن. سنتواصل معك لتأكيد الطلب وموعد الاستلام.</value>
+    <value>لن يتم الدفع عبر الموقع. ادفع نقدًا عند الاستلام أو حوّل عبر كليك، وسنتواصل معك لتأكيد الطلب وموعد الاستلام.</value>
   </data>
   <data name="Confirm your request" xml:space="preserve">
     <value>تأكيد الطلب</value>
@@ -382,5 +382,23 @@
   </data>
   <data name="DeliverySoon" xml:space="preserve">
     <value>خدمة التوصيل قريبًا — حاليًا الاستلام من الزرقاء أو عمّان.</value>
+  </data>
+  <data name="Pay with CliQ" xml:space="preserve">
+    <value>الدفع عبر كليك (CliQ)</value>
+  </data>
+  <data name="CliqNote" xml:space="preserve">
+    <value>حوّل قيمة الطلب من تطبيق البنك الذي تستخدمه إلى الاسم المستعار التالي، ثم أرسل لنا صورة الإيصال عبر واتساب. أو ادفع نقدًا عند الاستلام.</value>
+  </data>
+  <data name="CliQ alias" xml:space="preserve">
+    <value>الاسم المستعار</value>
+  </data>
+  <data name="CliqReference" xml:space="preserve">
+    <value>اكتب رقم الطلب في خانة الملاحظات عند التحويل:</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>نسخ</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>تم النسخ</value>
   </data>
 </root>

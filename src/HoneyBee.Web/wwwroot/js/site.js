@@ -3,6 +3,28 @@
 (function () {
     'use strict';
 
+    /* -- copy-to-clipboard (the CliQ alias) ---------------------------- */
+    // Progressive: the alias is plain selectable text, so if the Clipboard API
+    // is missing or the page is not on HTTPS, the button simply does nothing
+    // visible and nobody is stuck.
+    document.querySelectorAll('[data-copy-target]').forEach(function (button) {
+        var source = document.getElementById(button.getAttribute('data-copy-target'));
+        if (!source || !navigator.clipboard) return;
+
+        button.addEventListener('click', function () {
+            navigator.clipboard.writeText(source.textContent.trim()).then(function () {
+                var original = button.innerHTML;
+                button.classList.add('is-done');
+                button.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>'
+                    + (button.getAttribute('data-copied') || '');
+                setTimeout(function () {
+                    button.classList.remove('is-done');
+                    button.innerHTML = original;
+                }, 2000);
+            });
+        });
+    });
+
     /* -- mobile menu -------------------------------------------------- */
     var toggle = document.getElementById('navToggle');
     var collapse = document.getElementById('navCollapse');
