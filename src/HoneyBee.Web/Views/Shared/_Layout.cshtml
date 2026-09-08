@@ -1,5 +1,9 @@
 @using HoneyBee.Web.Models
+@inject HoneyBee.Web.Services.ShopSettings Shop
 @{
+    // wa.me wants bare digits: no plus, no spaces.
+    var whatsAppDigits = new string(Shop.WhatsAppNumber.Where(char.IsDigit).ToArray());
+
     var isAr = LocalizedText.IsArabic;
     var lang = isAr ? "ar" : "en";
     var dir  = isAr ? "rtl" : "ltr";
@@ -163,7 +167,10 @@
         </div>
     </footer>
 
-    <a class="wa-float" href="https://wa.me/962799423449" target="_blank" rel="noopener"
+    @* Taken from the same setting the order messages use. Written out twice,
+       these drift the moment the shop changes number — and the half that got
+       missed would quietly send strangers to the old one. *@
+    <a class="wa-float" href="https://wa.me/@whatsAppDigits" target="_blank" rel="noopener"
        aria-label="@L["Send on WhatsApp"]">
         <i class="bi bi-whatsapp" aria-hidden="true"></i>
     </a>
