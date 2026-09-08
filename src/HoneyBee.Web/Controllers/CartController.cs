@@ -159,12 +159,12 @@ public class CartController : Controller
         _db.Orders.Add(order);
         await _db.SaveChangesAsync();
 
-        // Saved first, notified second — a failed notification must never lose
-        // an order. Both channels are queued rather than awaited: the messages
-        // are built here while the order is loaded, but the customer is not
-        // held on this button while a mail server or API is contacted.
+        // Saved first, notified second — a mail failure must never lose an order.
+        // The email is queued rather than awaited: the body is built here while
+        // the order is loaded, but the customer is not held on this button while
+        // a mail server is contacted.
         await _db.Entry(order).Reference(o => o.PickupLocation).LoadAsync();
-        await _notifier.QueueOrderNotificationsAsync(order);
+        await _notifier.QueueOrderEmailAsync(order);
 
         HttpContext.Session.SaveCart(new Cart());
 

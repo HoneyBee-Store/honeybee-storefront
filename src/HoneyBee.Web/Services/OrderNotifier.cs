@@ -94,18 +94,15 @@ public class OrderNotifier
     private readonly MailSettingsStore _mail;
     private readonly ShopSettings _shop;
     private readonly IEnumerable<IMailTransport> _transports;
-    private readonly WhatsAppNotifier _whatsApp;
     private readonly ILogger<OrderNotifier> _log;
 
     public OrderNotifier(MailSettingsStore mail, ShopSettings shop,
                          IEnumerable<IMailTransport> transports,
-                         WhatsAppNotifier whatsApp,
                          ILogger<OrderNotifier> log)
     {
         _mail = mail;
         _shop = shop;
         _transports = transports;
-        _whatsApp = whatsApp;
         _log = log;
     }
 
@@ -270,63 +267,42 @@ public class OrderNotifier
     /// handed to the background. Checkout redirects to WhatsApp immediately,
     /// and a slow mail server can no longer delay it.
     /// </summary>
-    public async Task QueueOrderNotificationsAsync(Order order, CancellationToken ct = default)
+    public async Task QueueOrderEmailAsync(Order order, CancellationToken ct = default)
     {
-        // Both are resolved here, on the request thread: the stores read the
-        // database, whose context is disposed the moment this request ends.
+        // Resolved here, on the request thread: the store reads the database,
+        // whose context is disposed the moment this request ends.
         var smtp = await _mail.GetAsync(ct);
-        var whatsApp = await _mail.GetWhatsAppAsync(ct);
 
-        var reference = order.OrderNumber;
-        var summary = BuildSummary(order);
-
-        if (smtp.IsConfigured)
-        {
-            var to = _shop.OrderEmail;
-            var subject = $"طلب جديد {order.OrderNumber} — {order.CustomerName}";
-            var html = BuildEmailHtml(order);
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await TransportFor(smtp).SendAsync(smtp, to, subject, summary, html);
-                    _log.LogInformation("Emailed order {OrderNumber}.", reference);
-                }
-                catch (Exception ex)
-                {
-                    // The order is already saved, so a mail failure is logged
-                    // rather than surfaced to a customer who cannot act on it.
-                    _log.LogError(ex, "Could not email order {OrderNumber}. The order is still saved.",
-                        reference);
-                }
-            }, CancellationToken.None);
-        }
-        else
+        if (!smtp.IsConfigured)
         {
             _log.LogInformation(
-                "Mail is not configured — order {OrderNumber} was not emailed.", reference);
+                "Mail is not configured — order {OrderNumber} was not emailed. It is saved, " +
+                "and the customer still gets the WhatsApp message.",
+                order.OrderNumber);
+            return;
         }
 
-        if (whatsApp.IsConfigured)
+        var to = _shop.OrderEmail;
+        var subject = $"طلب جديد {order.OrderNumber} — {order.CustomerName}";
+        var text = BuildSummary(order);
+        var html = BuildEmailHtml(order);
+        var reference = order.OrderNumber;
+
+        _ = Task.Run(async () =>
         {
-            // Sent to the shop's own number. The customer's wa.me button still
-            // exists, but it needs them to press send, so this is what makes
-            // the notification arrive either way.
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _whatsApp.SendAsync(whatsApp, summary);
-                    _log.LogInformation("Sent order {OrderNumber} to WhatsApp.", reference);
-                }
-                catch (Exception ex)
-                {
-                    _log.LogError(ex, "Could not WhatsApp order {OrderNumber}. The order is still saved.",
-                        reference);
-                }
-            }, CancellationToken.None);
-        }
+                await TransportFor(smtp).SendAsync(smtp, to, subject, text, html);
+                _log.LogInformation("Emailed order {OrderNumber}.", reference);
+            }
+            catch (Exception ex)
+            {
+                // The order is already saved and the shop still gets WhatsApp,
+                // so a mail failure is logged rather than surfaced.
+                _log.LogError(ex, "Could not email order {OrderNumber}. The order is still saved.",
+                    reference);
+            }
+        }, CancellationToken.None);
     }
 
     /// <summary>

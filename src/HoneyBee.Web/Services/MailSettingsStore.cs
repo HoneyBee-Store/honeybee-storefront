@@ -25,8 +25,6 @@ public class MailSettingsStore
     private const string KeyPassword = "Smtp.Password";   // stored encrypted
     private const string KeyProvider = "Mail.Provider";
     private const string KeyApiKey   = "Mail.ApiKey";     // stored encrypted
-    private const string KeyWaPhone  = "WhatsApp.Phone";
-    private const string KeyWaKey    = "WhatsApp.ApiKey";  // stored encrypted
 
     private readonly AppDbContext _db;
     private readonly IDataProtector _protector;
@@ -57,9 +55,7 @@ public class MailSettingsStore
     {
         var rows = await _db.Settings
             .AsNoTracking()
-            .Where(s => s.Key.StartsWith("Smtp.")
-                     || s.Key.StartsWith("Mail.")
-                     || s.Key.StartsWith("WhatsApp."))
+            .Where(s => s.Key.StartsWith("Smtp.") || s.Key.StartsWith("Mail."))
             .ToDictionaryAsync(s => s.Key, s => s.Value, ct);
 
         string? Pick(string key, string? fallback)
@@ -85,54 +81,6 @@ public class MailSettingsStore
 
         return settings;
     }
-
-    /// <summary>
-    /// The WhatsApp notification settings, or an unconfigured instance when
-    /// none are stored. There is no configuration-file fallback: unlike mail,
-    /// this has never had one, and inventing one now would be a second place
-    /// to look when it stops working.
-    /// </summary>
-    public async Task<WhatsAppSettings> GetWhatsAppAsync(CancellationToken ct = default)
-    {
-        var rows = await _db.Settings
-            .AsNoTracking()
-            .Where(s => s.Key.StartsWith("WhatsApp."))
-            .ToDictionaryAsync(s => s.Key, s => s.Value, ct);
-
-        return new WhatsAppSettings
-        {
-            Phone = rows.TryGetValue(KeyWaPhone, out var phone) ? phone : null,
-            ApiKey = Unprotect(rows, KeyWaKey)
-        };
-    }
-
-    /// <summary>
-    /// Saves the WhatsApp settings. A blank key keeps the stored one, matching
-    /// how the mail secrets behave.
-    /// </summary>
-    public async Task SaveWhatsAppAsync(
-        string? phone, string? apiKey, CancellationToken ct = default)
-    {
-        await SetAsync(KeyWaPhone, phone is null ? null : new string(phone.Where(char.IsDigit).ToArray()), ct);
-
-        if (!string.IsNullOrWhiteSpace(apiKey))
-        {
-            await SetAsync(KeyWaKey, _protector.Protect(Strip(apiKey)), ct);
-        }
-
-        await _db.SaveChangesAsync(ct);
-    }
-
-    /// <summary>Forgets the WhatsApp key, switching those notifications off.</summary>
-    public async Task ClearWhatsAppKeyAsync(CancellationToken ct = default)
-    {
-        await SetAsync(KeyWaKey, null, ct);
-        await _db.SaveChangesAsync(ct);
-    }
-
-    /// <summary>True when a WhatsApp key is held in the database.</summary>
-    public Task<bool> HasStoredWhatsAppKeyAsync(CancellationToken ct = default)
-        => _db.Settings.AnyAsync(s => s.Key == KeyWaKey && s.Value != "", ct);
 
     /// <summary>
     /// Decrypts one stored secret, or returns null if it is absent or
