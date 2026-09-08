@@ -4,24 +4,62 @@
     'use strict';
 
     /* -- copy-to-clipboard (the CliQ alias) ---------------------------- */
-    // Progressive: the alias is plain selectable text, so if the Clipboard API
-    // is missing or the page is not on HTTPS, the button simply does nothing
-    // visible and nobody is stuck.
+    // Clipboard access is refused more often than it looks: Safari is strict,
+    // several in-app browsers deny it outright, and it needs a secure context.
+    // So there are two fallbacks below the API, and the button is hidden
+    // entirely if neither can work — better no button than a dead one.
     document.querySelectorAll('[data-copy-target]').forEach(function (button) {
         var source = document.getElementById(button.getAttribute('data-copy-target'));
-        if (!source || !navigator.clipboard) return;
+        if (!source) return;
+
+        if (!navigator.clipboard && !document.queryCommandSupported) {
+            button.hidden = true;
+            return;
+        }
+
+        function selectSource() {
+            // Last resort: put the alias on screen as a selection so the phone's
+            // own copy menu is one tap away. The customer still gets the value.
+            var range = document.createRange();
+            range.selectNodeContents(source);
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            return range;
+        }
+
+        function confirmCopied() {
+            var original = button.innerHTML;
+            button.classList.add('is-done');
+            button.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>'
+                + (button.getAttribute('data-copied') || '');
+            setTimeout(function () {
+                button.classList.remove('is-done');
+                button.innerHTML = original;
+            }, 2000);
+        }
+
+        function legacyCopy() {
+            selectSource();
+            var copied = false;
+            try { copied = document.execCommand('copy'); } catch (e) { copied = false; }
+            // Leave the text selected when even that fails, so the customer can
+            // copy it by hand rather than retype eight letters that must be exact.
+            if (copied) {
+                window.getSelection().removeAllRanges();
+                confirmCopied();
+            }
+        }
 
         button.addEventListener('click', function () {
-            navigator.clipboard.writeText(source.textContent.trim()).then(function () {
-                var original = button.innerHTML;
-                button.classList.add('is-done');
-                button.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>'
-                    + (button.getAttribute('data-copied') || '');
-                setTimeout(function () {
-                    button.classList.remove('is-done');
-                    button.innerHTML = original;
-                }, 2000);
-            });
+            var text = source.textContent.trim();
+
+            if (!navigator.clipboard) {
+                legacyCopy();
+                return;
+            }
+
+            navigator.clipboard.writeText(text).then(confirmCopied, legacyCopy);
         });
     });
 

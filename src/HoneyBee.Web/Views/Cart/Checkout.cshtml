@@ -98,7 +98,12 @@
                 </aside>
             </div>
 
-            <partial name="_CliqPanel" />
+            @* No reference to quote yet — the order does not exist until this
+               form is posted. Passed explicitly as null, because the <partial>
+               tag helper falls back to the *parent* view's model when none is
+               given, which handed this page's CheckoutViewModel to a partial
+               declaring @@model string and threw on every checkout. *@
+            @await Html.PartialAsync("_CliqPanel", (string?)null)
         </form>
     </div>
 </section>
