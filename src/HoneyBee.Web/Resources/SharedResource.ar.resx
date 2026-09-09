@@ -446,4 +446,7 @@
   <data name="StatusCancelled" xml:space="preserve">
     <value>ملغي</value>
   </data>
+  <data name="Keep shopping" xml:space="preserve">
+    <value>متابعة التسوق</value>
+  </data>
 </root>

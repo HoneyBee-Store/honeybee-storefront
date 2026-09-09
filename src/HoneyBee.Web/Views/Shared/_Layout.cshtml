@@ -69,10 +69,9 @@
                     <a class="icon-btn" asp-controller="Cart" asp-action="Index"
                        aria-label="@L["My request"]">
                         <i class="bi bi-basket2" aria-hidden="true"></i>
-                        @if (cartCount > 0)
-                        {
-                            <span class="cart-count">@cartCount</span>
-                        }
+                        @* Always rendered, hidden while empty: the script needs
+                           something to write into when the first item goes in. *@
+                        <span class="cart-count" id="cartCount" hidden="@(cartCount == 0)">@cartCount</span>
                     </a>
 
                     @if (isSignedIn && User.IsInRole(Roles.Admin))
@@ -170,6 +169,28 @@
     @* Taken from the same setting the order messages use. Written out twice,
        these drift the moment the shop changes number — and the half that got
        missed would quietly send strangers to the old one. *@
+    @*
+        Confirms an item went into the basket. Rendered once here rather than
+        per product card: there are as many add buttons as there are products,
+        and one dialog can serve all of them.
+    *@
+    <dialog class="hb-dialog" id="addedDialog" aria-labelledby="addedDialogTitle">
+        <div class="hb-dialog-body">
+            <i class="bi bi-bag-check-fill hb-dialog-icon" aria-hidden="true"></i>
+            <h2 class="hb-dialog-title" id="addedDialogTitle">@L["Added to your request."]</h2>
+            <p class="hb-dialog-text" id="addedDialogProduct"></p>
+
+            <div class="hb-dialog-actions">
+                <button type="button" class="btn-hb btn-outline" data-close-dialog>
+                    @L["Keep shopping"]
+                </button>
+                <a class="btn-hb btn-gold" asp-controller="Cart" asp-action="Index">
+                    @L["My request"]
+                </a>
+            </div>
+        </div>
+    </dialog>
+
     <a class="wa-float" href="https://wa.me/@whatsAppDigits" target="_blank" rel="noopener"
        aria-label="@L["Send on WhatsApp"]">
         <i class="bi bi-whatsapp" aria-hidden="true"></i>

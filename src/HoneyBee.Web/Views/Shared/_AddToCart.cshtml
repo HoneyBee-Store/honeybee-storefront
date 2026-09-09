@@ -8,7 +8,9 @@
 
 @if (Model.InStock)
 {
-    <form asp-controller="Cart" asp-action="Add" method="post">
+    @* Marked so the script can find it. Without JavaScript this stays an
+       ordinary form post, which still works and still shows the banner. *@
+    <form asp-controller="Cart" asp-action="Add" method="post" data-add-to-cart>
         <input type="hidden" name="productId" value="@Model.Id" />
         <input type="hidden" name="returnUrl" value="@returnUrl" />
 

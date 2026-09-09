@@ -765,6 +765,17 @@ textarea.field { line-height: 1.6; resize: vertical; }
 .notice-warn { background: rgba(200, 149, 43, .14); border-color: var(--gold-deep); color: #6E4E0F; }
 .notice-bad  { background: rgba(163, 52, 31, .1);  border-color: #A3341F; color: #7E2817; }
 
+.hb-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-block-start: 1.25rem;
+}
+.hb-dialog-actions > * {
+  flex: 1 1 8rem;
+  margin-block-start: 0;
+}
+
 /* --------------------------------------------------- previous requests -- */
 .past-orders { margin-block-start: 2.5rem; }
 .past-orders .section-title { margin-bottom: 1rem; }
@@ -812,7 +823,10 @@ textarea.field { line-height: 1.6; resize: vertical; }
 .hb-dialog {
   border: 0;
   padding: 0;
-  max-width: min(28rem, calc(100vw - 2rem));
+  /* A width, not just a cap: <dialog> shrink-wraps its content otherwise, so
+     the panel changed size with the message inside it and the two buttons
+     below fell short of fitting side by side by a couple of pixels. */
+  width: min(28rem, calc(100vw - 2rem));
   border-radius: var(--r-lg);
   background: transparent;
   color: var(--ink);

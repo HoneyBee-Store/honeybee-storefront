@@ -55,7 +55,11 @@ public class CartController : Controller
         // item that sold out since it was rendered.
         if (!product.InStock)
         {
-            TempData["CartMessage"] = _l["Sorry, that product is out of stock."].Value;
+            var soldOut = _l["Sorry, that product is out of stock."].Value;
+
+            if (WantsJson) return Json(new { ok = false, message = soldOut });
+
+            TempData["CartMessage"] = soldOut;
             return LocalRedirect(Url.IsLocalUrl(returnUrl) ? returnUrl! : "/");
         }
 
@@ -65,6 +69,20 @@ public class CartController : Controller
         var cart = HttpContext.Session.GetCart();
         cart.Add(product.Id, sizeKg, quantity);
         HttpContext.Session.SaveCart(cart);
+
+        // Answered in place when the page asked that way, so adding something
+        // from the product list no longer reloads the page and throws the
+        // customer back to the top of it.
+        if (WantsJson)
+        {
+            return Json(new
+            {
+                ok = true,
+                message = _l["Added to your request."].Value,
+                product = product.Name(),
+                count = cart.TotalItems
+            });
+        }
 
         TempData["CartMessage"] = _l["Added to your request."].Value;
         return LocalRedirect(Url.IsLocalUrl(returnUrl) ? returnUrl! : Url.Action(nameof(Index))!);

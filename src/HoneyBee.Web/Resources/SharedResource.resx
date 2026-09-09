@@ -183,4 +183,7 @@
   <data name="StatusCancelled" xml:space="preserve">
     <value>Cancelled</value>
   </data>
+  <data name="Keep shopping" xml:space="preserve">
+    <value>Keep shopping</value>
+  </data>
 </root>

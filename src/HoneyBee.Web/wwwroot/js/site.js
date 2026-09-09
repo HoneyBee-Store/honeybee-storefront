@@ -3,6 +3,78 @@
 (function () {
     'use strict';
 
+    /* -- dialogs: closing ---------------------------------------------- */
+    // Every <dialog> on the page closes the same two ways, so this is written
+    // once rather than per dialog. Escape is the browser's own doing.
+    document.querySelectorAll('dialog').forEach(function (dialog) {
+        dialog.addEventListener('click', function (event) {
+            // The backdrop belongs to the dialog element, so a click landing on
+            // the element itself rather than its panel means "outside".
+            if (event.target === dialog) dialog.close();
+        });
+
+        dialog.querySelectorAll('[data-close-dialog]').forEach(function (button) {
+            button.addEventListener('click', function () { dialog.close(); });
+        });
+    });
+
+    /* -- add to basket, without losing the page ------------------------ */
+    // Adding used to post the form and reload, which on the product list threw
+    // the customer back to the top of the page they were browsing. The add now
+    // happens in place and says so.
+    var addedDialog = document.getElementById('addedDialog');
+    var addForms = document.querySelectorAll('form[data-add-to-cart]');
+
+    if (addedDialog && addForms.length && window.fetch) {
+        var addedProduct = document.getElementById('addedDialogProduct');
+        var cartCount = document.getElementById('cartCount');
+
+        addForms.forEach(function (form) {
+            var button = form.querySelector('button[type="submit"]');
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                if (button) button.disabled = true;
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: { 'X-Requested-With': 'fetch' },
+                    credentials: 'same-origin'
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (result) {
+                    if (button) button.disabled = false;
+
+                    if (!result.ok) {
+                        // Sold out between the page loading and this click. Let
+                        // the ordinary post through so the page re-renders with
+                        // the item correctly marked unavailable.
+                        form.submit();
+                        return;
+                    }
+
+                    if (addedProduct) addedProduct.textContent = result.product || '';
+
+                    if (cartCount && typeof result.count === 'number') {
+                        cartCount.textContent = result.count;
+                        cartCount.hidden = result.count === 0;
+                    }
+
+                    if (typeof addedDialog.showModal === 'function') {
+                        if (!addedDialog.open) addedDialog.showModal();
+                    } else {
+                        window.alert(result.message);
+                    }
+                }).catch(function () {
+                    // Never leave the button dead: fall back to the plain post.
+                    if (button) button.disabled = false;
+                    form.submit();
+                });
+            });
+        });
+    }
+
     /* -- checkout, held until the transfer is approved ----------------- */
     // The button posts in place instead of navigating, so a customer who is
     // waiting can press it again and again without losing the page they are on.
@@ -27,16 +99,6 @@
                 window.alert(dialogText.textContent);
             }
         }
-
-        waitDialog.addEventListener('click', function (event) {
-            // The backdrop is part of the dialog element, so a click landing on
-            // the element itself (not its panel) means "outside".
-            if (event.target === waitDialog) waitDialog.close();
-        });
-
-        waitDialog.querySelectorAll('[data-close-dialog]').forEach(function (button) {
-            button.addEventListener('click', function () { waitDialog.close(); });
-        });
 
         checkoutForm.addEventListener('submit', function (event) {
             // Let the browser do its own required-field checking first.
