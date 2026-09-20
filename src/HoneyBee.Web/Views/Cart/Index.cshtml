@@ -126,7 +126,7 @@
             // is the one they will actually be looking for.
             Func<OrderStatus, string> statusLabel = status => status switch
             {
-                OrderStatus.AwaitingPayment => L["StatusAwaitingPayment"].Value,
+                OrderStatus.AwaitingApproval => L["StatusAwaitingApproval"].Value,
                 OrderStatus.New             => L["StatusNew"].Value,
                 OrderStatus.Confirmed       => L["StatusConfirmed"].Value,
                 OrderStatus.Ready           => L["StatusReady"].Value,
@@ -137,7 +137,7 @@
 
             Func<OrderStatus, string> statusClass = status => status switch
             {
-                OrderStatus.AwaitingPayment => "order-chip--wait",
+                OrderStatus.AwaitingApproval => "order-chip--wait",
                 OrderStatus.Cancelled       => "order-chip--bad",
                 OrderStatus.Collected       => "order-chip--ok",
                 _                           => "order-chip--on"

@@ -75,6 +75,29 @@
         });
     }
 
+    /* -- payment choice reveals the CliQ details ----------------------- */
+    // The block is in the markup unhidden, so with no script it simply stays on
+    // screen. Only script hides it, and only once it can also show it again.
+    var conditional = document.querySelectorAll('[data-hidden-until]');
+
+    conditional.forEach(function (block) {
+        var trigger = document.getElementById(block.getAttribute('data-hidden-until'));
+        if (!trigger || !trigger.form) return;
+
+        function sync() {
+            block.hidden = !trigger.checked;
+        }
+
+        // Every radio in the group, not just the one that reveals: unchecking
+        // happens by checking a sibling, which fires no event on this one.
+        trigger.form.querySelectorAll('input[name="' + trigger.name + '"]')
+            .forEach(function (radio) {
+                radio.addEventListener('change', sync);
+            });
+
+        sync();
+    });
+
     /* -- checkout, held until the transfer is approved ----------------- */
     // The button posts in place instead of navigating, so a customer who is
     // waiting can press it again and again without losing the page they are on.

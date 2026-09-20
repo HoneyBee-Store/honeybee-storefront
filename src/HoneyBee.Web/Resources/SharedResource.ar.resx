@@ -449,4 +449,28 @@
   <data name="Keep shopping" xml:space="preserve">
     <value>متابعة التسوق</value>
   </data>
+  <data name="How would you like to pay?" xml:space="preserve">
+    <value>كيف تحب أن تدفع؟</value>
+  </data>
+  <data name="Pay in cash on collection" xml:space="preserve">
+    <value>الدفع نقدًا عند الاستلام</value>
+  </data>
+  <data name="CliqOptionNote" xml:space="preserve">
+    <value>حوّل قيمة الطلب عبر كليك الآن، ونؤكد وصول المبلغ قبل تجهيز الطلب.</value>
+  </data>
+  <data name="CashOptionNote" xml:space="preserve">
+    <value>ادفع عند استلام طلبك من نقطة الاستلام. لا حاجة لأي تحويل الآن.</value>
+  </data>
+  <data name="Please wait while we accept your request — it will only be a moment." xml:space="preserve">
+    <value>من فضلك الانتظار ريثما نقبل طلبك — لن يستغرق الأمر سوى لحظات.</value>
+  </data>
+  <data name="WaitForAcceptance" xml:space="preserve">
+    <value>من فضلك الانتظار ريثما نقبل طلبك — لن يستغرق الأمر سوى لحظات.</value>
+  </data>
+  <data name="Please choose how you would like to pay." xml:space="preserve">
+    <value>من فضلك اختر طريقة الدفع.</value>
+  </data>
+  <data name="StatusAwaitingApproval" xml:space="preserve">
+    <value>بانتظار قبول الطلب</value>
+  </data>
 </root>

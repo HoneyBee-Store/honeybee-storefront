@@ -857,6 +857,61 @@ textarea.field { line-height: 1.6; resize: vertical; }
 .hb-dialog .order-ref { margin-block-end: .75rem; }
 .hb-dialog .btn-hb { margin-block-start: 1.25rem; }
 
+/* ------------------------------------------------------- payment choice -- */
+.pay-choice {
+  margin-block-start: 1.5rem;
+  border: 1px solid var(--beige);
+}
+.pay-choice-legend {
+  float: none;              /* Bootstrap-free reset: legend must not size the box */
+  width: auto;
+  padding: 0;
+  margin-bottom: 1rem;
+  font-family: var(--font-display);
+  font-size: var(--t-1);
+}
+
+.pay-option {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .9rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.pay-option + .pay-option { margin-block-start: .6rem; }
+.pay-option:hover { border-color: var(--gold); background: var(--cream); }
+
+/* :has is what lets the whole card show the selection, not just the dot. */
+.pay-option:has(input:checked) {
+  border-color: var(--gold);
+  background: var(--cream);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+.pay-option:has(input:focus-visible) {
+  outline: 2px solid var(--gold-deep);
+  outline-offset: 2px;
+}
+
+.pay-option input { margin-block-start: .3rem; }
+
+.pay-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+.pay-option-title {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 700;
+}
+.pay-option-note {
+  font-size: .9rem;
+  color: var(--ink-soft);
+}
+
 /* ------------------------------------------------------------------ cliq -- */
 /* The alias is the one thing on the page that must be read character by
    character, so it gets more weight than anything around it. */

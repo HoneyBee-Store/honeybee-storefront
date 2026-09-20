@@ -490,7 +490,7 @@ public partial class AdminController : Controller
         // Orders still waiting on a transfer float to the top: they are the only
         // ones with a customer sitting on the other end, pressing a button.
         orders = orders
-            .OrderByDescending(o => o.Status == OrderStatus.AwaitingPayment)
+            .OrderByDescending(o => o.Status == OrderStatus.AwaitingApproval)
             .ThenByDescending(o => o.CreatedAt)
             .ToList();
 
@@ -498,8 +498,12 @@ public partial class AdminController : Controller
     }
 
     /// <summary>
-    /// Confirms the CliQ transfer arrived, which is what releases the customer's
-    /// checkout. Their next press of the button goes straight through.
+    /// Lets the order through, which is what releases the customer's checkout —
+    /// their next press of the button goes straight through.
+    ///
+    /// What it means depends on how they chose to pay: that the CliQ transfer
+    /// has arrived, or simply that the request for cash on collection is
+    /// accepted. The page says which, per order.
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -508,7 +512,7 @@ public partial class AdminController : Controller
         var order = await _db.Orders.FindAsync(id);
         if (order is null) return NotFound();
 
-        if (order.Status != OrderStatus.AwaitingPayment)
+        if (order.Status != OrderStatus.AwaitingApproval)
         {
             // Already dealt with, most likely by a second tab or a double click.
             // Saying so is friendlier than silently doing nothing.
@@ -519,7 +523,9 @@ public partial class AdminController : Controller
         order.Status = OrderStatus.New;
         await _db.SaveChangesAsync();
 
-        TempData["Message"] = $"Approved {order.OrderNumber}. The customer can now finish their order.";
+        var how = order.NeedsTransfer ? "CliQ" : "cash on collection";
+        TempData["Message"] =
+            $"Approved {order.OrderNumber} ({how}). The customer can now finish their order.";
         return RedirectToAction(nameof(Orders));
     }
 
@@ -551,7 +557,7 @@ public partial class AdminController : Controller
 
         // Not a route back into the waiting state: the customer's checkout has
         // already been released and cannot be un-released.
-        if (status == OrderStatus.AwaitingPayment)
+        if (status == OrderStatus.AwaitingApproval)
         {
             TempData["Message"] = "An order cannot be put back to awaiting payment.";
             return RedirectToAction(nameof(Orders));

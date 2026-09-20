@@ -25,7 +25,21 @@
             }
         </div>
 
-        @await Html.PartialAsync("_CliqPanel", Model.OrderNumber)
+        @* Only for orders actually being paid that way. A cash customer has no
+           transfer to make, and showing them an alias invites a double payment. *@
+        @if (Model.NeedsTransfer)
+        {
+            @await Html.PartialAsync("_CliqPanel", Model.OrderNumber)
+        }
+        else
+        {
+            <div class="panel cliq-panel">
+                <h2 class="cliq-head">
+                    <i class="bi bi-cash-coin" aria-hidden="true"></i>@L["Pay in cash on collection"]
+                </h2>
+                <p class="field-help" style="margin:0">@L["CashOptionNote"]</p>
+            </div>
+        }
 
         <div class="panel" style="margin-block-start:1.5rem">
             <h2 style="font-size:var(--t-1);margin-bottom:1.25rem">@L["Summary"]</h2>

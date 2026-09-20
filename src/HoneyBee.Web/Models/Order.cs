@@ -14,14 +14,31 @@ public enum OrderStatus
     Collected = 3,
     Cancelled = 4,
     /// <summary>
-    /// Placed, but the shop has not yet seen the CliQ transfer arrive. The
-    /// customer cannot finish until someone confirms the money is in.
+    /// Placed, and waiting for the shop to let it through. What the shop is
+    /// waiting *for* depends on how the customer chose to pay: a CliQ transfer
+    /// to arrive, or simply a decision on the request for cash on collection.
     ///
     /// Numbered after Cancelled rather than before New because the values are
     /// stored as integers — inserting it in the middle would renumber every
     /// status and silently rewrite the meaning of every existing order.
     /// </summary>
-    AwaitingPayment = 5
+    AwaitingApproval = 5
+}
+
+/// <summary>How the customer intends to pay.</summary>
+public enum PaymentMethod
+{
+    /// <summary>
+    /// Transferred to the shop's CliQ alias before collection. The shop has to
+    /// see the money land before releasing the order.
+    /// </summary>
+    Cliq = 0,
+
+    /// <summary>
+    /// Cash, handed over at the pickup point. Nothing to verify in advance, so
+    /// approving is only the shop agreeing to the request.
+    /// </summary>
+    CashOnPickup = 1
 }
 
 /// <summary>
@@ -50,6 +67,15 @@ public class Order
     public OrderStatus Status { get; set; } = OrderStatus.New;
 
     /// <summary>
+    /// Defaults to CliQ because that is the only way orders could be paid when
+    /// this column was added — every order already in the table was one.
+    /// </summary>
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cliq;
+
+    /// <summary>True when the shop is waiting on money, not just on a decision.</summary>
+    public bool NeedsTransfer => PaymentMethod == PaymentMethod.Cliq;
+
+    /// <summary>
     /// The account that placed this, when the customer was signed in.
     ///
     /// Nullable on purpose: guests can order without registering, and every
@@ -61,15 +87,15 @@ public class Order
     public string? UserId { get; set; }
     public AppUser? User { get; set; }
 
-    /// <summary>Waiting on the shop to confirm the transfer arrived.</summary>
-    public bool IsAwaitingPayment => Status == OrderStatus.AwaitingPayment;
+    /// <summary>Waiting on the shop to let this through.</summary>
+    public bool IsAwaitingApproval => Status == OrderStatus.AwaitingApproval;
 
     /// <summary>
     /// Cleared to proceed. Anything that is not "waiting" and not "cancelled"
     /// means someone has looked at this order and let it through.
     /// </summary>
-    public bool IsPaymentApproved =>
-        Status is not (OrderStatus.AwaitingPayment or OrderStatus.Cancelled);
+    public bool IsApproved =>
+        Status is not (OrderStatus.AwaitingApproval or OrderStatus.Cancelled);
 
     [MaxLength(1000)]
     public string? CustomerNotes { get; set; }

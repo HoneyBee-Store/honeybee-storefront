@@ -44,6 +44,14 @@ public class CheckoutViewModel
     [Required(ErrorMessage = "Please choose where to collect your order.")]
     public int PickupLocationId { get; set; }
 
+    /// <summary>
+    /// Nullable and required, so nothing is pre-selected. A default here would
+    /// be a guess about how someone means to pay, and getting it wrong sends
+    /// them a message about a transfer they never intended to make.
+    /// </summary>
+    [Required(ErrorMessage = "Please choose how you would like to pay.")]
+    public PaymentMethod? PaymentMethod { get; set; }
+
     [MaxLength(1000)]
     public string? CustomerNotes { get; set; }
 

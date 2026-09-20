@@ -136,8 +136,8 @@ public class CartController : Controller
     /// <summary>
     /// Placing an order, in two stages.
     ///
-    /// The first press saves the order as AwaitingPayment and tells the
-    /// customer to wait while the CliQ transfer is checked. Every press after
+    /// The first press saves the order as AwaitingApproval and asks the
+    /// customer to wait while the shop looks at it. Every press after
     /// that asks the same question again — "has it been approved yet?" — and
     /// only the press that finds it approved finishes the job. That is why
     /// nothing here reloads the page: the customer stays put and presses again,
@@ -184,9 +184,11 @@ public class CartController : Controller
             Phone = PhoneNumbers.Normalise(model.Phone),
             PickupLocationId = model.PickupLocationId,
             CustomerNotes = model.CustomerNotes?.Trim(),
-            // Held until the transfer is confirmed, not New. Nothing about this
+            // Held until the shop lets it through, not New. Nothing about this
             // order reaches the customer as "placed" until someone says so.
-            Status = OrderStatus.AwaitingPayment,
+            Status = OrderStatus.AwaitingApproval,
+            // Already validated as non-null by the [Required] on the view model.
+            PaymentMethod = model.PaymentMethod!.Value,
             // Stamped so this order is still theirs after the session cookie is
             // gone. Null for guests, which is why the phone is matched too.
             //
@@ -238,10 +240,14 @@ public class CartController : Controller
     /// </summary>
     private async Task<IActionResult> ResolveAsync(Order order)
     {
-        if (order.IsAwaitingPayment)
+        if (order.IsAwaitingApproval)
         {
-            return Respond("waiting", order,
-                _l["Please wait until your transfer arrives — it will be approved in a moment."]);
+            // Two different waits, and saying the wrong one is worse than saying
+            // nothing: telling a cash customer to wait for their transfer sends
+            // them looking for a payment they were never asked to make.
+            return Respond("waiting", order, order.NeedsTransfer
+                ? _l["Please wait until your transfer arrives — it will be approved in a moment."]
+                : _l["Please wait while we accept your request — it will only be a moment."]);
         }
 
         if (order.Status == OrderStatus.Cancelled)
@@ -342,7 +348,7 @@ public class CartController : Controller
         return await _db.Orders
             .Include(o => o.Items)
             .Include(o => o.PickupLocation)
-            .Where(o => o.UserId == userId && o.Status == OrderStatus.AwaitingPayment)
+            .Where(o => o.UserId == userId && o.Status == OrderStatus.AwaitingApproval)
             .OrderByDescending(o => o.CreatedAt)
             .FirstOrDefaultAsync();
     }

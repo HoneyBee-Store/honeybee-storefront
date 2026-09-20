@@ -186,4 +186,28 @@
   <data name="Keep shopping" xml:space="preserve">
     <value>Keep shopping</value>
   </data>
+  <data name="How would you like to pay?" xml:space="preserve">
+    <value>How would you like to pay?</value>
+  </data>
+  <data name="Pay in cash on collection" xml:space="preserve">
+    <value>Pay in cash on collection</value>
+  </data>
+  <data name="CliqOptionNote" xml:space="preserve">
+    <value>Transfer the total by CliQ now. We confirm it has arrived before preparing your order.</value>
+  </data>
+  <data name="CashOptionNote" xml:space="preserve">
+    <value>Pay when you collect your order at the pickup point. Nothing to transfer now.</value>
+  </data>
+  <data name="Please wait while we accept your request — it will only be a moment." xml:space="preserve">
+    <value>Please wait while we accept your request. It will only be a moment.</value>
+  </data>
+  <data name="WaitForAcceptance" xml:space="preserve">
+    <value>Please wait while we accept your request. It will only be a moment.</value>
+  </data>
+  <data name="Please choose how you would like to pay." xml:space="preserve">
+    <value>Please choose how you would like to pay.</value>
+  </data>
+  <data name="StatusAwaitingApproval" xml:space="preserve">
+    <value>Awaiting approval</value>
+  </data>
 </root>
