@@ -136,12 +136,16 @@ public class CartController : Controller
     /// <summary>
     /// Placing an order, in two stages.
     ///
-    /// The first press saves the order as AwaitingApproval and asks the
-    /// customer to wait while the shop looks at it. Every press after
-    /// that asks the same question again — "has it been approved yet?" — and
-    /// only the press that finds it approved finishes the job. That is why
-    /// nothing here reloads the page: the customer stays put and presses again,
-    /// and the moment the owner approves, the next press goes through.
+    /// Paying cash at the counter goes straight through on the first press:
+    /// there is nothing to verify in advance, so there is nothing to wait for.
+    ///
+    /// A CliQ order is held instead. The first press saves it as
+    /// AwaitingApproval and asks the customer to wait while the shop checks the
+    /// transfer; every press after that asks the same question again — "has it
+    /// been approved yet?" — and only the press that finds it approved finishes
+    /// the job. That is why nothing here reloads the page: the customer stays
+    /// put and presses again, and the moment the owner approves, it goes
+    /// through.
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -184,9 +188,13 @@ public class CartController : Controller
             Phone = PhoneNumbers.Normalise(model.Phone),
             PickupLocationId = model.PickupLocationId,
             CustomerNotes = model.CustomerNotes?.Trim(),
-            // Held until the shop lets it through, not New. Nothing about this
-            // order reaches the customer as "placed" until someone says so.
-            Status = OrderStatus.AwaitingApproval,
+            // Only a CliQ order is held. There the shop has to see the money
+            // land before committing to anything; paying cash at the counter
+            // has nothing to verify in advance, so holding it would just be a
+            // queue the customer waits in for no reason.
+            Status = model.PaymentMethod == Models.PaymentMethod.Cliq
+                ? OrderStatus.AwaitingApproval
+                : OrderStatus.New,
             // Already validated as non-null by the [Required] on the view model.
             PaymentMethod = model.PaymentMethod!.Value,
             // Stamped so this order is still theirs after the session cookie is
@@ -224,11 +232,13 @@ public class CartController : Controller
         await _db.Entry(order).Reference(o => o.PickupLocation).LoadAsync();
         await _notifier.QueueOrderEmailAsync(order);
 
-        // The cart is deliberately left alone until the order is approved. If it
-        // were emptied here, a customer who reloaded while waiting would find an
-        // empty basket and no obvious way back to their own order.
         RememberOrder(order.OrderNumber);
-        SetPendingOrder(order.OrderNumber);
+
+        // Only marked pending if it actually is. The cart is left alone while an
+        // order waits — emptied there, a customer who reloaded mid-wait would
+        // find an empty basket and no obvious way back to their own order.
+        // ResolveAsync empties it on the way through for everyone else.
+        if (order.IsAwaitingApproval) SetPendingOrder(order.OrderNumber);
 
         return await ResolveAsync(order);
     }
@@ -242,9 +252,10 @@ public class CartController : Controller
     {
         if (order.IsAwaitingApproval)
         {
-            // Two different waits, and saying the wrong one is worse than saying
-            // nothing: telling a cash customer to wait for their transfer sends
-            // them looking for a payment they were never asked to make.
+            // Only CliQ orders are held now, so the second message is reached
+            // only by a cash order placed while they still were. Kept because
+            // such orders can exist, and telling one of those customers to wait
+            // for a transfer would send them chasing a payment nobody asked for.
             return Respond("waiting", order, order.NeedsTransfer
                 ? _l["Please wait until your transfer arrives — it will be approved in a moment."]
                 : _l["Please wait while we accept your request — it will only be a moment."]);
