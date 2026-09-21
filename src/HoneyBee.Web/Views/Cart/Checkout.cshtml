@@ -12,44 +12,96 @@
 
         <form asp-action="Checkout" method="post" id="checkoutForm">
             <div class="cart-layout">
-                <div class="panel">
-                    <div asp-validation-summary="ModelOnly" class="notice notice-bad" role="alert"
-                         style="margin-bottom:1.25rem"></div>
+                @* One column for everything the customer fills in, payment
+                   included, so the summary and its send button come last: on a
+                   phone the column stacks above it, and nobody reaches the
+                   button before choosing how to pay. *@
+                <div class="checkout-main">
+                    <div class="panel">
+                        <div asp-validation-summary="ModelOnly" class="notice notice-bad" role="alert"
+                             style="margin-bottom:1.25rem"></div>
 
-                    <div class="stack">
-                        <div>
-                            <label class="field-label" asp-for="CustomerName">@L["Full name"]</label>
-                            <input class="field" asp-for="CustomerName" autocomplete="name" />
-                            <span class="field-error" asp-validation-for="CustomerName"></span>
-                        </div>
+                        <div class="stack">
+                            <div>
+                                <label class="field-label" asp-for="CustomerName">@L["Full name"]</label>
+                                <input class="field" asp-for="CustomerName" autocomplete="name" />
+                                <span class="field-error" asp-validation-for="CustomerName"></span>
+                            </div>
 
-                        <div>
-                            <label class="field-label" asp-for="Phone">@L["Phone number"]</label>
-                            <input class="field u-ltr" asp-for="Phone" type="tel" autocomplete="tel"
-                                   placeholder="0790000000" />
-                            <span class="field-help">@L["CheckoutPhoneHelp"]</span>
-                            <span class="field-error" asp-validation-for="Phone"></span>
-                        </div>
+                            <div>
+                                <label class="field-label" asp-for="Phone">@L["Phone number"]</label>
+                                <input class="field u-ltr" asp-for="Phone" type="tel" autocomplete="tel"
+                                       placeholder="0790000000" />
+                                <span class="field-help">@L["CheckoutPhoneHelp"]</span>
+                                <span class="field-error" asp-validation-for="Phone"></span>
+                            </div>
 
-                        <div>
-                            <label class="field-label" asp-for="PickupLocationId">@L["Pickup location"]</label>
-                            <select class="field" asp-for="PickupLocationId">
-                                <option value="">@L["Choose a location"]</option>
-                                @foreach (var loc in Model.PickupLocations)
-                                {
-                                    <option value="@loc.Id">@loc.Name()</option>
-                                }
-                            </select>
-                            <span class="field-error" asp-validation-for="PickupLocationId"></span>
-                            @* Answers the question here, where someone picking a
-                               location is most likely to be wondering it. *@
-                            <p class="field-help">@L["DeliverySoon"]</p>
-                        </div>
+                            <div>
+                                <label class="field-label" asp-for="PickupLocationId">@L["Pickup location"]</label>
+                                <select class="field" asp-for="PickupLocationId">
+                                    <option value="">@L["Choose a location"]</option>
+                                    @foreach (var loc in Model.PickupLocations)
+                                    {
+                                        <option value="@loc.Id">@loc.Name()</option>
+                                    }
+                                </select>
+                                <span class="field-error" asp-validation-for="PickupLocationId"></span>
+                                @* Answers the question here, where someone picking a
+                                   location is most likely to be wondering it. *@
+                                <p class="field-help">@L["DeliverySoon"]</p>
+                            </div>
 
-                        <div>
-                            <label class="field-label" asp-for="CustomerNotes">@L["Notes (optional)"]</label>
-                            <textarea class="field" asp-for="CustomerNotes" rows="3"></textarea>
+                            <div>
+                                <label class="field-label" asp-for="CustomerNotes">@L["Notes (optional)"]</label>
+                                <textarea class="field" asp-for="CustomerNotes" rows="3"></textarea>
+                            </div>
                         </div>
+                    </div>
+
+                    @*
+                        How they intend to pay. Nothing is pre-selected on purpose: a
+                        default would be a guess, and guessing CliQ tells someone to go
+                        and make a transfer they never meant to make.
+                    *@
+                    <fieldset class="panel pay-choice">
+                        <legend class="pay-choice-legend">@L["How would you like to pay?"]</legend>
+
+                        <div asp-validation-for="PaymentMethod" class="field-error"></div>
+
+                        <label class="pay-option">
+                            <input type="radio" asp-for="PaymentMethod" value="Cliq" id="payCliq" />
+                            <span class="pay-option-body">
+                                <span class="pay-option-title">
+                                    <i class="bi bi-bank" aria-hidden="true"></i>@L["Pay with CliQ"]
+                                </span>
+                                <span class="pay-option-note">@L["CliqOptionNote"]</span>
+                            </span>
+                        </label>
+
+                        <label class="pay-option">
+                            <input type="radio" asp-for="PaymentMethod" value="CashOnPickup" id="payCash" />
+                            <span class="pay-option-body">
+                                <span class="pay-option-title">
+                                    <i class="bi bi-cash-coin" aria-hidden="true"></i>@L["Pay in cash on collection"]
+                                </span>
+                                <span class="pay-option-note">@L["CashOptionNote"]</span>
+                            </span>
+                        </label>
+                    </fieldset>
+
+                    @*
+                        The alias only matters to someone paying that way. Hidden until
+                        CliQ is chosen, and revealed by script; with no script it simply
+                        stays visible, which is the safe way round — the details are
+                        never withheld from someone who needs them.
+                    *@
+                    <div id="cliqDetails" data-hidden-until="payCliq">
+                        @* No reference to quote yet — the order does not exist until this
+                           form is posted. Passed explicitly as null, because the <partial>
+                           tag helper falls back to the *parent* view's model when none is
+                           given, which handed this page's CheckoutViewModel to a partial
+                           declaring @@model string and threw on every checkout. *@
+                        @await Html.PartialAsync("_CliqPanel", (string?)null)
                     </div>
                 </div>
 
@@ -99,51 +151,6 @@
                 </aside>
             </div>
 
-            @*
-                How they intend to pay. Nothing is pre-selected on purpose: a
-                default would be a guess, and guessing CliQ tells someone to go
-                and make a transfer they never meant to make.
-            *@
-            <fieldset class="panel pay-choice">
-                <legend class="pay-choice-legend">@L["How would you like to pay?"]</legend>
-
-                <div asp-validation-for="PaymentMethod" class="field-error"></div>
-
-                <label class="pay-option">
-                    <input type="radio" asp-for="PaymentMethod" value="Cliq" id="payCliq" />
-                    <span class="pay-option-body">
-                        <span class="pay-option-title">
-                            <i class="bi bi-bank" aria-hidden="true"></i>@L["Pay with CliQ"]
-                        </span>
-                        <span class="pay-option-note">@L["CliqOptionNote"]</span>
-                    </span>
-                </label>
-
-                <label class="pay-option">
-                    <input type="radio" asp-for="PaymentMethod" value="CashOnPickup" id="payCash" />
-                    <span class="pay-option-body">
-                        <span class="pay-option-title">
-                            <i class="bi bi-cash-coin" aria-hidden="true"></i>@L["Pay in cash on collection"]
-                        </span>
-                        <span class="pay-option-note">@L["CashOptionNote"]</span>
-                    </span>
-                </label>
-            </fieldset>
-
-            @*
-                The alias only matters to someone paying that way. Hidden until
-                CliQ is chosen, and revealed by script; with no script it simply
-                stays visible, which is the safe way round — the details are
-                never withheld from someone who needs them.
-            *@
-            <div id="cliqDetails" data-hidden-until="payCliq">
-                @* No reference to quote yet — the order does not exist until this
-                   form is posted. Passed explicitly as null, because the <partial>
-                   tag helper falls back to the *parent* view's model when none is
-                   given, which handed this page's CheckoutViewModel to a partial
-                   declaring @@model string and threw on every checkout. *@
-                @await Html.PartialAsync("_CliqPanel", (string?)null)
-            </div>
         </form>
     </div>
 </section>
