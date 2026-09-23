@@ -226,11 +226,11 @@ public class CartController : Controller
         await _db.SaveChangesAsync();
 
         // Saved first, notified second — a mail failure must never lose an order.
-        // The email is queued rather than awaited: the body is built here while
-        // the order is loaded, but the customer is not held on this button while
-        // a mail server is contacted.
+        // Awaited rather than backgrounded: see SendOrderEmailAsync. A cash order
+        // leaves the site immediately after this, and a detached send does not
+        // survive the idle shutdown that follows.
         await _db.Entry(order).Reference(o => o.PickupLocation).LoadAsync();
-        await _notifier.QueueOrderEmailAsync(order);
+        await _notifier.SendOrderEmailAsync(order);
 
         RememberOrder(order.OrderNumber);
 

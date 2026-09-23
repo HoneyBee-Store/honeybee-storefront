@@ -267,14 +267,14 @@ public class OrderNotifier
     }
 
     /// <summary>
-    /// Sends the order email without making the customer wait for it.
+    /// Emails the shop a new order.
     ///
     /// The body is built here, on the request thread, while the order and its
     /// navigation properties are still loaded — only the SMTP conversation is
     /// handed to the background. Checkout redirects to WhatsApp immediately,
     /// and a slow mail server can no longer delay it.
     /// </summary>
-    public async Task QueueOrderEmailAsync(Order order, CancellationToken ct = default)
+    public async Task SendOrderEmailAsync(Order order, CancellationToken ct = default)
     {
         // Resolved here, on the request thread: the store reads the database,
         // whose context is disposed the moment this request ends.
@@ -295,21 +295,29 @@ public class OrderNotifier
         var html = BuildEmailHtml(order);
         var reference = order.OrderNumber;
 
-        _ = Task.Run(async () =>
+        // Awaited, not fired and forgotten.
+        //
+        // It used to run on a detached Task so the customer was not held on the
+        // button. That quietly lost mail: a background task is not registered
+        // with the host, and the shop runs on a plan whose worker process shuts
+        // down as soon as it goes idle. An order paying cash finishes in one
+        // press and redirects straight out to WhatsApp, so nothing kept the
+        // process alive and the send was killed mid-flight — while a CliQ order,
+        // whose customer stays and presses again, always had traffic keeping it
+        // up. Hence "cash orders never arrive, CliQ ones do".
+        //
+        // The wait is bounded by MailSettings.TimeoutSeconds, and a failure is
+        // still only logged: the order is saved either way.
+        try
         {
-            try
-            {
-                await TransportFor(smtp).SendAsync(smtp, to, subject, text, html);
-                _log.LogInformation("Emailed order {OrderNumber}.", reference);
-            }
-            catch (Exception ex)
-            {
-                // The order is already saved and the shop still gets WhatsApp,
-                // so a mail failure is logged rather than surfaced.
-                _log.LogError(ex, "Could not email order {OrderNumber}. The order is still saved.",
-                    reference);
-            }
-        }, CancellationToken.None);
+            await TransportFor(smtp).SendAsync(smtp, to, subject, text, html);
+            _log.LogInformation("Emailed order {OrderNumber}.", reference);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Could not email order {OrderNumber}. The order is still saved.",
+                reference);
+        }
     }
 
     /// <summary>
