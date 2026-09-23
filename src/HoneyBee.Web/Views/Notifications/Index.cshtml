@@ -1,0 +1,86 @@
+@model List<Notification>
+@{
+    ViewData["Title"] = L["Notifications"].Value;
+
+    // The wording lives here, not in the database, so one stored row reads in
+    // whichever language the customer is using at the time.
+    Func<NotificationKind, string> headline = kind => kind switch
+    {
+        NotificationKind.Approved  => L["NotifApproved"].Value,
+        NotificationKind.Cancelled => L["NotifCancelled"].Value,
+        NotificationKind.OnHold    => L["NotifOnHold"].Value,
+        NotificationKind.Confirmed => L["NotifConfirmed"].Value,
+        NotificationKind.Ready     => L["NotifReady"].Value,
+        NotificationKind.Collected => L["NotifCollected"].Value,
+        _                          => kind.ToString()
+    };
+
+    Func<NotificationKind, string> icon = kind => kind switch
+    {
+        NotificationKind.Approved  => "bi-check-circle-fill",
+        NotificationKind.Cancelled => "bi-x-circle-fill",
+        NotificationKind.OnHold    => "bi-pause-circle-fill",
+        NotificationKind.Confirmed => "bi-telephone-fill",
+        NotificationKind.Ready     => "bi-box-seam-fill",
+        NotificationKind.Collected => "bi-bag-check-fill",
+        _                          => "bi-bell-fill"
+    };
+
+    Func<NotificationKind, string> tone = kind => kind switch
+    {
+        NotificationKind.Cancelled => "notif--bad",
+        NotificationKind.OnHold    => "notif--wait",
+        NotificationKind.Collected => "notif--done",
+        _                          => "notif--ok"
+    };
+}
+
+<section class="section section--cream">
+    <div class="container-hb narrow-md">
+        <header class="section-head">
+            <p class="eyebrow">@L["Your account"]</p>
+            <h1 class="section-title">@L["Notifications"]</h1>
+        </header>
+
+        @if (Model.Count == 0)
+        {
+            <div class="panel empty-state">
+                <i class="bi bi-bell" aria-hidden="true"></i>
+                <p style="margin-block-start:1rem">@L["NoNotifications"]</p>
+                <a class="btn-hb btn-gold" asp-controller="Home" asp-action="Index">@L["View Products"]</a>
+            </div>
+        }
+        else
+        {
+            <div class="panel panel--flush">
+                @foreach (var n in Model)
+                {
+                    @* Unread is marked on the row rather than shown as a count:
+                       the list is opened and read in one go. *@
+                    <a class="notif @(n.IsUnread ? "is-unread" : "")"
+                       asp-controller="Cart" asp-action="Confirmation"
+                       asp-route-orderNumber="@n.OrderNumber">
+                        <span class="notif-icon @tone(n.Kind)">
+                            <i class="bi @icon(n.Kind)" aria-hidden="true"></i>
+                        </span>
+                        <span class="notif-body">
+                            <span class="notif-head">@headline(n.Kind)</span>
+                            <span class="cart-line-meta">
+                                <span class="u-ltr" dir="ltr">@n.OrderNumber</span>
+                                · @n.CreatedAt.ToLocalTime().ToString("d MMM yyyy HH:mm")
+                            </span>
+                        </span>
+                        @if (n.IsUnread)
+                        {
+                            <span class="notif-dot" aria-label="@L["New"]"></span>
+                        }
+                    </a>
+                }
+            </div>
+        }
+
+        <p class="u-center" style="margin-block-start:1.5rem">
+            <a class="btn-hb btn-outline" asp-controller="Cart" asp-action="Index">@L["My request"]</a>
+        </p>
+    </div>
+</section>

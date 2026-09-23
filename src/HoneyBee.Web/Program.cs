@@ -47,6 +47,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddSingleton(builder.Configuration.GetSection("Shop").Get<ShopSettings>() ?? new ShopSettings());
 builder.Services.AddSingleton(builder.Configuration.GetSection("Smtp").Get<MailSettings>() ?? new MailSettings());
 var storage = builder.Configuration.GetSection("Storage").Get<StorageSettings>() ?? new StorageSettings();

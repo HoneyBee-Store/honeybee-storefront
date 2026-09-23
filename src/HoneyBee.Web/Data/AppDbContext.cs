@@ -19,6 +19,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Setting> Settings => Set<Setting>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -59,6 +60,26 @@ public class AppDbContext : IdentityDbContext<AppUser>
             // phone for orders placed before that person registered.
             e.HasIndex(o => o.UserId);
             e.HasIndex(o => o.Phone);
+        });
+
+        b.Entity<Notification>(e =>
+        {
+            // The list is always "this person's, newest first", and the bell
+            // asks for their unread count on every page.
+            e.HasIndex(n => new { n.UserId, n.CreatedAt });
+            e.HasIndex(n => new { n.UserId, n.ReadAt });
+
+            e.HasOne(n => n.User)
+             .WithMany()
+             .HasForeignKey(n => n.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            // Deleting an order clears its notifications rather than blocking
+            // the delete; the customer keeps the ones about orders that remain.
+            e.HasOne(n => n.Order)
+             .WithMany()
+             .HasForeignKey(n => n.OrderId)
+             .OnDelete(DeleteBehavior.SetNull);
         });
 
         b.Entity<OrderItem>(e =>

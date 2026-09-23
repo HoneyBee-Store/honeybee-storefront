@@ -132,6 +132,7 @@
                 OrderStatus.Ready           => L["StatusReady"].Value,
                 OrderStatus.Collected       => L["StatusCollected"].Value,
                 OrderStatus.Cancelled       => L["StatusCancelled"].Value,
+                OrderStatus.OnHold          => L["StatusOnHold"].Value,
                 _                           => status.ToString()
             };
 
@@ -139,6 +140,7 @@
             {
                 OrderStatus.AwaitingApproval => "order-chip--wait",
                 OrderStatus.Cancelled       => "order-chip--bad",
+                OrderStatus.OnHold          => "order-chip--wait",
                 OrderStatus.Collected       => "order-chip--ok",
                 _                           => "order-chip--on"
             };

@@ -1,8 +1,20 @@
 @using HoneyBee.Web.Models
 @inject HoneyBee.Web.Services.ShopSettings Shop
+@inject HoneyBee.Web.Services.NotificationService Notifications
+@inject Microsoft.AspNetCore.Identity.UserManager<HoneyBee.Web.Models.AppUser> Users
 @{
     // wa.me wants bare digits: no plus, no spaces.
     var whatsAppDigits = new string(Shop.WhatsAppNumber.Where(char.IsDigit).ToArray());
+
+    // Counted here so the bell is right on first paint; the script keeps it
+    // current afterwards without a reload. Only signed-in customers have an
+    // inbox at all, so nobody else pays for this query.
+    var unreadCount = 0;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var meId = Users.GetUserId(User);
+        if (meId is not null) unreadCount = await Notifications.UnreadCountAsync(meId);
+    }
 
     var isAr = LocalizedText.IsArabic;
     var lang = isAr ? "ar" : "en";
@@ -73,6 +85,18 @@
                            something to write into when the first item goes in. *@
                         <span class="cart-count" id="cartCount" hidden="@(cartCount == 0)">@cartCount</span>
                     </a>
+
+                    @if (isSignedIn)
+                    {
+                        <a class="icon-btn" asp-controller="Notifications" asp-action="Index"
+                           id="notifBell" aria-label="@L["Notifications"]">
+                            <i class="bi bi-bell" aria-hidden="true"></i>
+                            @* Always rendered, hidden while zero: the poll needs
+                               something to write into when the first one lands. *@
+                            <span class="cart-count" id="notifCount"
+                                  hidden="@(unreadCount == 0)">@unreadCount</span>
+                        </a>
+                    }
 
                     @if (isSignedIn && User.IsInRole(Roles.Admin))
                     {

@@ -3,6 +3,54 @@
 (function () {
     'use strict';
 
+    /* -- notification bell --------------------------------------------- */
+    // Polled rather than pushed: the shop has one owner clicking Approve now and
+    // then, so a WebSocket would be a lot of machinery for an event that happens
+    // a few times a day. The count is already correct on page load; this only
+    // catches changes made while the customer sits on the page.
+    var notifCount = document.getElementById('notifCount');
+
+    if (notifCount && window.fetch) {
+        var lastCount = parseInt(notifCount.textContent, 10) || 0;
+
+        function refreshCount() {
+            // Skipped while the tab is in the background: a phone left on the
+            // shop for an hour should not keep waking up to ask.
+            if (document.hidden) return;
+
+            fetch('/Notifications/Count', {
+                headers: { 'X-Requested-With': 'fetch' },
+                credentials: 'same-origin'
+            }).then(function (response) {
+                return response.ok ? response.json() : null;
+            }).then(function (result) {
+                if (!result || typeof result.count !== 'number') return;
+
+                notifCount.textContent = result.count;
+                notifCount.hidden = result.count === 0;
+
+                // A nudge only when something new actually arrived, so the bell
+                // does not twitch every time it is polled.
+                if (result.count > lastCount) {
+                    notifCount.classList.remove('is-new');
+                    void notifCount.offsetWidth;   // restart the animation
+                    notifCount.classList.add('is-new');
+                }
+
+                lastCount = result.count;
+            }).catch(function () {
+                // Offline or signed out; the badge simply stops updating.
+            });
+        }
+
+        setInterval(refreshCount, 45000);
+
+        // Coming back to the tab is the moment someone looks at the bell.
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) refreshCount();
+        });
+    }
+
     /* -- dialogs: closing ---------------------------------------------- */
     // Every <dialog> on the page closes the same two ways, so this is written
     // once rather than per dialog. Escape is the browser's own doing.

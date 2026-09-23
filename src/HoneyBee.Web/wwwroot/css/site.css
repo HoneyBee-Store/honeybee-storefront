@@ -776,6 +776,62 @@ textarea.field { line-height: 1.6; resize: vertical; }
   margin-block-start: 0;
 }
 
+/* -------------------------------------------------------- notifications -- */
+/* The bell borrows the basket's badge so the two read as a pair. */
+#notifCount.is-new { animation: notif-pop .45s ease-out; }
+@keyframes notif-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #notifCount.is-new { animation: none; }
+}
+
+.notif {
+  display: flex;
+  gap: .9rem;
+  align-items: center;
+  padding: 1rem clamp(1.15rem, 3vw, 1.75rem);
+  color: inherit;
+  text-decoration: none;
+  border-block-end: 1px solid var(--rule-soft);
+}
+.notif:last-child { border-block-end: 0; }
+.notif:hover, .notif:focus { background: var(--beige-soft); }
+.notif.is-unread { background: var(--cream); }
+
+.notif-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 2.4rem;
+  block-size: 2.4rem;
+  flex: 0 0 auto;
+  border-radius: var(--r-pill);
+  font-size: 1.1rem;
+}
+.notif--ok   { background: rgba(46, 107, 55, .12);  color: #235029; }
+.notif--bad  { background: rgba(163, 52, 31, .1);   color: #7E2817; }
+.notif--wait { background: rgba(200, 149, 43, .18); color: #6E4E0F; }
+.notif--done { background: rgba(42, 29, 18, .08);   color: var(--ink-soft); }
+
+.notif-body {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  min-inline-size: 0;
+}
+.notif-head { font-weight: 700; }
+
+.notif-dot {
+  inline-size: .55rem;
+  block-size: .55rem;
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  border-radius: var(--r-pill);
+  background: var(--gold);
+}
+
 /* --------------------------------------------------- previous requests -- */
 .past-orders { margin-block-start: 2.5rem; }
 .past-orders .section-title { margin-bottom: 1rem; }

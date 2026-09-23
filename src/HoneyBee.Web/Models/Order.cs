@@ -22,7 +22,13 @@ public enum OrderStatus
     /// stored as integers — inserting it in the middle would renumber every
     /// status and silently rewrite the meaning of every existing order.
     /// </summary>
-    AwaitingApproval = 5
+    AwaitingApproval = 5,
+    /// <summary>
+    /// Paused by the shop after it was let through — out of stock, a pickup
+    /// point closed, waiting on the customer. Nothing is expected of the
+    /// customer; they are simply told it is on hold.
+    /// </summary>
+    OnHold = 6
 }
 
 /// <summary>How the customer intends to pay.</summary>

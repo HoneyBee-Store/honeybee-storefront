@@ -15,11 +15,16 @@
         OrderStatus.Ready           => "text-bg-secondary",
         OrderStatus.Collected       => "text-bg-success",
         OrderStatus.Cancelled       => "text-bg-danger",
+        OrderStatus.OnHold          => "text-bg-warning",
         _                           => "text-bg-secondary"
     };
 
-    static string Label(OrderStatus status) =>
-        status == OrderStatus.AwaitingApproval ? "Awaiting approval" : status.ToString();
+    static string Label(OrderStatus status) => status switch
+    {
+        OrderStatus.AwaitingApproval => "Awaiting approval",
+        OrderStatus.OnHold => "On hold",
+        _ => status.ToString()
+    };
 
     // Whether this one needs the bank checked first, or only a decision.
     static string Pay(Order o) => o.NeedsTransfer ? "CliQ" : "Cash on collection";
@@ -117,6 +122,18 @@ else
                                         </button>
                                     </form>
                                 }
+                                else if (o.Status == OrderStatus.OnHold)
+                                {
+                                    @* Resuming puts it back where a fresh order
+                                       sits, so the usual steps follow from there. *@
+                                    <form asp-action="SetOrderStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@o.Id" />
+                                        <input type="hidden" name="status" value="@OrderStatus.New" />
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            Resume
+                                        </button>
+                                    </form>
+                                }
                                 else if (o.Status != OrderStatus.Cancelled && o.Status != OrderStatus.Collected)
                                 {
                                     <form asp-action="SetOrderStatus" method="post" class="d-inline">
@@ -130,6 +147,18 @@ else
                                                    : o.Status == OrderStatus.Confirmed ? "ready"
                                                    : "collected")
                                         </button>
+                                    </form>
+                                }
+
+                                @if (o.Status != OrderStatus.AwaitingApproval
+                                     && o.Status != OrderStatus.OnHold
+                                     && o.Status != OrderStatus.Cancelled
+                                     && o.Status != OrderStatus.Collected)
+                                {
+                                    <form asp-action="HoldOrder" method="post" class="d-inline"
+                                          onsubmit="return confirm('Put @o.OrderNumber on hold? The customer is told it is paused.');">
+                                        <input type="hidden" name="id" value="@o.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">Hold</button>
                                     </form>
                                 }
 
@@ -155,5 +184,12 @@ else
         finish. Orders paying cash on collection need nothing from you and arrive
         as <strong>New</strong>. Approving does not confirm the pickup time — that
         is the next step along.
+    </p>
+
+    <p class="form-text">
+        Approving, holding, resuming, cancelling and every step after also puts a
+        notification in the customer's account, which appears on the bell beside
+        their basket. Customers who ordered as a guest and never registered have
+        no account to receive one.
     </p>
 }

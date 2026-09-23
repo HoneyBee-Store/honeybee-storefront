@@ -210,4 +210,37 @@
   <data name="StatusAwaitingApproval" xml:space="preserve">
     <value>Awaiting approval</value>
   </data>
+  <data name="Notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="NoNotifications" xml:space="preserve">
+    <value>No notifications yet.</value>
+  </data>
+  <data name="NotifApproved" xml:space="preserve">
+    <value>Your order was approved</value>
+  </data>
+  <data name="NotifCancelled" xml:space="preserve">
+    <value>Your order was cancelled</value>
+  </data>
+  <data name="NotifOnHold" xml:space="preserve">
+    <value>Your order is on hold</value>
+  </data>
+  <data name="NotifConfirmed" xml:space="preserve">
+    <value>Your order is confirmed</value>
+  </data>
+  <data name="NotifReady" xml:space="preserve">
+    <value>Your order is ready to collect</value>
+  </data>
+  <data name="NotifCollected" xml:space="preserve">
+    <value>Your order was collected</value>
+  </data>
+  <data name="StatusOnHold" xml:space="preserve">
+    <value>On hold</value>
+  </data>
+  <data name="Your account" xml:space="preserve">
+    <value>Your account</value>
+  </data>
 </root>

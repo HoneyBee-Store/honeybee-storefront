@@ -27,12 +27,14 @@ public partial class AdminController : Controller
     private readonly MailSettingsStore _mail;
     private readonly EmailPageGate _gate;
     private readonly StorageSettings _storage;
+    private readonly NotificationService _notifications;
 
     public AdminController(AppDbContext db, SignInManager<AppUser> signIn,
                            IWebHostEnvironment env, OrderNotifier notifier,
                            MailSettingsStore mail, EmailPageGate gate,
-                           StorageSettings storage)
+                           StorageSettings storage, NotificationService notifications)
     {
+        _notifications = notifications;
         _storage = storage;
         _db = db;
         _signIn = signIn;
@@ -521,6 +523,11 @@ public partial class AdminController : Controller
         }
 
         order.Status = OrderStatus.New;
+
+        // Saved together with the status: the customer must never be told about
+        // a change that then failed to store, nor left uninformed about one that
+        // did. One SaveChanges covers both.
+        await _notifications.RecordAsync(order, NotificationKind.Approved);
         await _db.SaveChangesAsync();
 
         var how = order.NeedsTransfer ? "CliQ" : "cash on collection";
@@ -541,6 +548,7 @@ public partial class AdminController : Controller
         if (order is null) return NotFound();
 
         order.Status = OrderStatus.Cancelled;
+        await _notifications.RecordAsync(order, NotificationKind.Cancelled);
         await _db.SaveChangesAsync();
 
         TempData["Message"] = $"Cancelled {order.OrderNumber}.";
@@ -564,9 +572,44 @@ public partial class AdminController : Controller
         }
 
         order.Status = status;
+
+        // Not every status is worth a notification, so the mapping decides.
+        if (NotificationService.KindFor(status) is { } kind)
+        {
+            await _notifications.RecordAsync(order, kind);
+        }
+
         await _db.SaveChangesAsync();
 
         TempData["Message"] = $"{order.OrderNumber} is now {status}.";
+        return RedirectToAction(nameof(Orders));
+    }
+
+    /// <summary>
+    /// Pauses an order that has already been let through — out of stock, a
+    /// pickup point shut, waiting on the customer. Nothing is asked of them;
+    /// they are simply told, so the silence is not mistaken for neglect.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> HoldOrder(int id)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if (order is null) return NotFound();
+
+        if (order.Status == OrderStatus.AwaitingApproval)
+        {
+            // It is already waiting on the shop, and the customer is being told
+            // so by the checkout page. Holding it would say the same thing twice.
+            TempData["Message"] = $"{order.OrderNumber} is still awaiting approval.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        order.Status = OrderStatus.OnHold;
+        await _notifications.RecordAsync(order, NotificationKind.OnHold);
+        await _db.SaveChangesAsync();
+
+        TempData["Message"] = $"{order.OrderNumber} is on hold. The customer has been told.";
         return RedirectToAction(nameof(Orders));
     }
 }

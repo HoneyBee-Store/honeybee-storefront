@@ -473,4 +473,37 @@
   <data name="StatusAwaitingApproval" xml:space="preserve">
     <value>بانتظار قبول الطلب</value>
   </data>
+  <data name="Notifications" xml:space="preserve">
+    <value>الإشعارات</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>جديد</value>
+  </data>
+  <data name="NoNotifications" xml:space="preserve">
+    <value>لا توجد إشعارات بعد.</value>
+  </data>
+  <data name="NotifApproved" xml:space="preserve">
+    <value>تمت الموافقة على طلبك</value>
+  </data>
+  <data name="NotifCancelled" xml:space="preserve">
+    <value>تم إلغاء طلبك</value>
+  </data>
+  <data name="NotifOnHold" xml:space="preserve">
+    <value>طلبك معلّق مؤقتًا</value>
+  </data>
+  <data name="NotifConfirmed" xml:space="preserve">
+    <value>تم تأكيد طلبك</value>
+  </data>
+  <data name="NotifReady" xml:space="preserve">
+    <value>طلبك جاهز للاستلام</value>
+  </data>
+  <data name="NotifCollected" xml:space="preserve">
+    <value>تم استلام طلبك</value>
+  </data>
+  <data name="StatusOnHold" xml:space="preserve">
+    <value>معلّق مؤقتًا</value>
+  </data>
+  <data name="Your account" xml:space="preserve">
+    <value>حسابي</value>
+  </data>
 </root>
